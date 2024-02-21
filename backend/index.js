@@ -4,9 +4,11 @@ const JwtStrategy = require('passport-jwt').Strategy,
     ExtractJwt = require('passport-jwt').ExtractJwt;
 const passport = require('passport');
 const User = require('./Models/User');
+const authRouter = require('./routes/auth');
 
 const app = express();
 require('dotenv').config();
+app.use(express.json());
 const port = 8000;
 const mongoDb = `mongodb+srv://rajroy:${process.env.MONGO_PASSWORD}@cluster0.etidfhl.mongodb.net/?retryWrites=true&w=majority`
 mongoose.connect(mongoDb).then((x)=>{
@@ -36,6 +38,7 @@ passport.use(new JwtStrategy(opts, function(jwt_payload, done) {
 app.get('/',(req,res)=>{
     res.send('Hello from express');
 });
+app.use('/auth',authRouter);
 
 app.listen(port,()=>{
     console.log(`Express is running on port ${port}`);
