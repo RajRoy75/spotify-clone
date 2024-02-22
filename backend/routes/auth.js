@@ -27,5 +27,23 @@ route.post('/register', async(req,res)=>{
     const returnToUser = {...createNewUser.toObject(),token};
     delete returnToUser.password;
     res.json(returnToUser);
+});
+route.post('/login', async(req,res)=>{
+    const {email,password} = req.body;
+    const user = await User.findOne({email: email});
+    if(!user){
+        res.status(404).json({error: 'Invalid login credential'});
+    }
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if(!isPasswordValid){
+        res.status(404).json({error: 'invalid login credential'});
+    }
+    const token = await getToken(email,user);
+    //step 5: return all the data to the user
+    // const returnToUser = createNewUser.toObject();
+    const returnToUser = {...user.toObject(),token};
+    delete returnToUser.password;
+    res.json(returnToUser);
+
 })
 module.exports = route;
