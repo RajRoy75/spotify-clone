@@ -22,19 +22,31 @@ mongoose.connect(mongoDb).then((x)=>{
 let opts = {}
 opts.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken();
 opts.secretOrKey = 'ThisIsAsecretKey';
-passport.use(new JwtStrategy(opts, function(jwt_payload, done) {
-    User.findOne({id: jwt_payload.sub}, function(err, user) {
-        if (err) {
-            return done(err, false);
-        }
+passport.use(new JwtStrategy(opts, async function(jwt_payload, done) {
+    try {
+        const user = await User.findOne({id: jwt_payload.sub });
         if (user) {
-            return done(null, user);
+        return done(null, user);
         } else {
-            return done(null, false);
-            // or you could create a new account
+        return done(null, false);
         }
-    });
+        } catch (err) {
+        return done(err, false)
+        }
 }));
+// passport.use(new JwtStrategy(opts, function(jwt_payload, done) {
+//     User.findOne({id: jwt_payload.sub}, function(err, user) {
+//         if (err) {
+//             return done(err, false);
+//         }
+//         if (user) {
+//             return done(null, user);
+//         } else {
+//             return done(null, false);
+//             // or you could create a new account
+//         }
+//     });
+// }));
 
 app.get('/',(req,res)=>{
     res.send('Hello from express');
