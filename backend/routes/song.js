@@ -18,18 +18,22 @@ route.get('/get/mysong', passport.authenticate("jwt", {session: false}), async(r
     const song = await Song.find({artist: req.user._id});
     res.status(200).json({data: song});
 });
-route.get('/get/artist', passport.authenticate('jwt',{session: false}), async(req,res)=>{
-    const artistId = req.body;
-    const artist = await User.find({_id: artistId});
+route.get('/get/artist/:artist', passport.authenticate('jwt',{session: false}), async(req,res)=>{
+    const artistId = req.params.artist;
+    const artist = await User.findOne({_id: artistId});
+    // it returns [] but ![] = true so that's why it does not show errors and same thing happen with song route.
     if(!artist){
         res.status(301).json({err: "Artist does not exist"});
     }
     const song = await Song.find({artist: artistId});
     res.status(200).json({data: song});
 });
-route.get('/get/songname', passport.authenticate('jwt',{session: false}), async(req,res)=>{
-    const songName = req.body;
-    const song  = await Song.find({name: songName});
+route.get('/get/song/:songname', passport.authenticate('jwt',{session: false}), async(req,res)=>{
+    const songName = req.params.songname;
+    const song  = await Song.findOne({name: songName});
+    if(!song){
+        res.status(301).json({err:'song not found'});
+    }
     res.status(200).json({data: song});
 })
 
