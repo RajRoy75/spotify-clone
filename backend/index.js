@@ -7,8 +7,10 @@ const User = require('./Models/User');
 const authRouter = require('./routes/auth');
 const songRouter = require('./routes/song');
 const playlistRoute = require('./routes/playlist');
+const cors = require('cors');
 
 const app = express();
+
 require('dotenv').config();
 app.use(express.json());
 const port = 8000;
@@ -19,7 +21,7 @@ mongoose.connect(mongoDb).then((x)=>{
     console.error(err);
 });
 // adding passport-jwt
-
+app.use(cors());
 let opts = {}
 opts.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken();
 opts.secretOrKey = 'ThisIsAsecretKey';
