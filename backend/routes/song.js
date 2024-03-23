@@ -12,7 +12,7 @@ route.post('/create', passport.authenticate("jwt", {session: false}), async(req,
     const artist = req.user._id;
     const songDetail = {name,thumbnail,track,artist};
     const createSong = await Song.create(songDetail);
-    return res.status(201).json({successs: 'Your song is successfully created'});
+    return res.status(201).json({data:createSong});
 });
 route.get('/get/mysong', passport.authenticate("jwt", {session: false}), async(req,res)=>{
     const song = await Song.find({artist: req.user._id});
