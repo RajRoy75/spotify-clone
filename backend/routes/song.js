@@ -15,7 +15,7 @@ route.post('/create', passport.authenticate("jwt", {session: false}), async(req,
     return res.status(201).json({data:createSong});
 });
 route.get('/get/mysong', passport.authenticate("jwt", {session: false}), async(req,res)=>{
-    const song = await Song.find({artist: req.user._id});
+    const song = await Song.find({artist: req.user._id}).populate('artist');
     res.status(200).json({data: song});
 });
 route.get('/get/artist/:artist', passport.authenticate('jwt',{session: false}), async(req,res)=>{
