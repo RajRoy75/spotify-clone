@@ -6,6 +6,8 @@ import PasswordField from '../components/shared/PasswordField';
 import { Link, useNavigate } from 'react-router-dom';
 import { makeUnAuthenticatePOSTrequest } from '../utils/serverHelper';
 import {useCookies} from 'react-cookie';
+import { auth } from "../utils/firebase";
+import { createUserWithEmailAndPassword } from "firebase/auth";
 
 function SignUp() {
     const [email, setEmail] = useState('');
@@ -17,23 +19,33 @@ function SignUp() {
     const [cookie, setCookie] = useCookies(['token']);
     const navigate = useNavigate();
     
+    
     const register = async ()=>{
+
         const data = {email, confirmEmail, userName, password, firstName, lastName};
         if(confirmEmail !== email){
             alert('email does not match');
             return;
         }
+        createUserWithEmailAndPassword(auth, email, password)
+      .then(async (userCredential) => {
         const response = await makeUnAuthenticatePOSTrequest('/auth/register', data);
         if(response && !response.error){
             console.log(response);
             const token = response.token;
             const date = new Date();
-            date.setDate(date.getDate() + 30)
-            setCookie('token', token, {path:'/',expires:date})
-            navigate('/')
+            date.setDate(date.getDate() + 30);
+            setCookie('token', token, {path:'/',expires:date});
         }else{
             alert('failure');
         }
+        navigate('/');
+        console.log("Signed up: ", userCredential.user);
+      })
+      .catch((error) => {
+        console.error(error.message);
+      });
+        
     }
 
 

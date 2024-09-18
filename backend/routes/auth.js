@@ -3,6 +3,7 @@ const User = require('../Models/User');
 const bcrypt = require('bcrypt');
 const { getToken } = require('../utils/helpers');
 const route = express.Router();
+const {authMiddleware} = require('../utils/authMiddleware');
 
 
 
@@ -53,5 +54,10 @@ route.post('/login', async (req, res) => {
 
 
 })
+
+route.get('/protected', authMiddleware, (req, res) => {
+    res.json({ message: 'This is a protected route', user: req.user });
+  });
+
 
 module.exports = route;

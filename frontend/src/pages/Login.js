@@ -6,6 +6,8 @@ import PasswordField from '../components/shared/PasswordField';
 import { Link, useNavigate } from 'react-router-dom';
 import {useCookies} from 'react-cookie';
 import { makeUnAuthenticatePOSTrequest } from '../utils/serverHelper';
+import { auth } from "../utils/firebase";
+import { signInWithEmailAndPassword, getAuth} from "firebase/auth";
 
 function Login() {
 
@@ -15,19 +17,39 @@ function Login() {
     const navigate = useNavigate();
 
     const signin = async ()=>{
-        const data = {email, password};
+
+        signInWithEmailAndPassword(auth, email, password)
+      .then((userCredential) => {
+        auth.currentUser.getIdToken().then((token) => {
+            fetch('http://localhost:8000/auth/protected', {
+              method: 'GET',
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            })
+            .then(response => response.json())
+            .then(data => console.log(data))
+            .catch(error => console.error('Error:', error));
+          });
+        navigate('/');
+        console.log("Logged in: ", userCredential.user);
+      })
+      .catch((error) => {
+        console.error(error.message);
+      });
+        // const data = {email, password};
     
-        const response = await makeUnAuthenticatePOSTrequest('/auth/login', data);
-        if(response && !response.error){
-            console.log(response);
-            const token = response.token;
-            const date = new Date();
-            date.setDate(date.getDate() + 30)
-            setCookie('token', token, {path:'/',expires:date})
-            navigate('/')
-        }else{
-            alert('failure');
-        }
+        // const response = await makeUnAuthenticatePOSTrequest('/auth/login', data);
+        // if(response && !response.error){
+        //     console.log(response);
+        //     const token = response.token;
+        //     const date = new Date();
+        //     date.setDate(date.getDate() + 30)
+        //     setCookie('token', token, {path:'/',expires:date})
+        //     navigate('/')
+        // }else{
+        //     alert('failure');
+        // }
     }
 
     return (
