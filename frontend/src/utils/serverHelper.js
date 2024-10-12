@@ -1,4 +1,5 @@
 import { backendUrl } from "./config";
+import { auth } from "./firebase";
 export const makeUnAuthenticatePOSTrequest = async (route, body) =>{
     const response = await fetch(backendUrl + route, {
         method:'POST',
@@ -36,10 +37,23 @@ export const makeAuthenticateGETrequest = async (route) =>{
     const formatedResponse = await response.json();
     return formatedResponse;
 }
-const getToken = () => {
-    const accessToken = document.cookie.replace(
-        /(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/,
-        "$1"
-    );
-    return accessToken;
+export const getToken = async() => {
+    const user = auth.currentUser; // Get the current authenticated user
+
+  if (user) {
+    try {
+      const token = await user.getIdToken(); // Fetch the user's ID token
+      return token;
+    } catch (error) {
+    //   console.error("Error getting token:", error);
+      throw error;
+    }
+  } else {
+    throw new Error("No user is authenticated");
+  }
 };
+// const accessToken = document.cookie.replace(
+//     /(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/,
+//     "$1"
+// );
+// return accessToken;

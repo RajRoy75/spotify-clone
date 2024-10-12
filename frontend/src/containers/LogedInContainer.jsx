@@ -13,8 +13,14 @@ import Playlist from '../components/shared/Playlist';
 import { Link } from 'react-router-dom';
 import { Howl, Howler } from 'howler';
 import songContext from '../context/SongContext';
+import useUser from '../hooks/useUser';
+import { useQueryClient } from 'react-query';
+
 
 function LogedInContainer({ children }) {
+    const { data, isLoading, isError } = useUser();
+    console.log(`data from react-query ${data}`);
+    const queryClient = useQueryClient();
     const screenW = window.innerWidth;
     const [sidebarWidth, setSidebarWidth] = useState(400);
     const [isResizing, setIsResizing] = useState(false);
@@ -26,7 +32,7 @@ function LogedInContainer({ children }) {
     const songUrlHC = "https://res.cloudinary.com/djtwqlcgo/video/upload/v1711198154/gbdduppidnjchcorl5nl.mp3";
 
     const { currentSong, setCurrentSong } = useContext(songContext);
-    console.log(currentSong);
+    // console.log(currentSong);
 
     const playSong = (songSrc) => {
         if (songPlayed) {

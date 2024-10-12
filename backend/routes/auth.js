@@ -9,8 +9,7 @@ const {authMiddleware} = require('../utils/authMiddleware');
 
 route.post('/register', async (req, res) => {
     // step 1 : get all this details from frontend site
-    const { email, userName, firstName, lastName, password } = req.body;
-
+    const { email, userName, firstName, lastName, password, uid } = req.body;
     //step 2 : check user is already exist or not
     //step 2.1 : get email id from DB
     const user = await User.findOne({ email: email });
@@ -20,7 +19,7 @@ route.post('/register', async (req, res) => {
     //step 3 : add user to our DB
     //step 3.1 : Hashing the password
     const hashPassword = await bcrypt.hash(password, 10);
-    const newUserData = { email, userName, firstName, lastName, password: hashPassword };
+    const newUserData = { email, userName, firstName, lastName, password: hashPassword, uid };
     const createNewUser = await User.create(newUserData);
     //step 4: create JWT token
     const token = await getToken(email, createNewUser);
@@ -58,6 +57,19 @@ route.post('/login', async (req, res) => {
 route.get('/protected', authMiddleware, (req, res) => {
     res.json({ message: 'This is a protected route', user: req.user });
   });
+
+route.get('/user/:uid', async(req,res)=>{
+    const {uid} = req.params;
+    try {
+        const response = await User.findOne({uid:uid});
+        if(!response){
+            return res.status(404).json({ message: 'User not found' });
+        }
+        res.json(response);
+    } catch (error) {
+        console.log(error);
+    }
+})
 
 
 module.exports = route;

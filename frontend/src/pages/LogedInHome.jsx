@@ -13,8 +13,17 @@ import PlaylistCardView from '../components/shared/PlaylistCardView';
 // import { Link } from 'react-router-dom';
 // import { Howl, Howler } from 'howler';
 import LogedInContainer from '../containers/LogedInContainer';
+import { getAuth } from "firebase/auth";
+import useUser from '../hooks/useUser';
+import { useQueryClient } from 'react-query';
 
 function LogedInHome() {
+  const { data, isLoading, isError } = useUser();
+  console.log(`data from react-query ${data}`);
+  const queryClient = useQueryClient();
+  const auth = getAuth();
+  const user = auth.currentUser;
+  console.log("user from home page ", user);
 
   const playlistData = [
     {

@@ -5,7 +5,7 @@ import InputField from '../components/shared/InputField';
 import PasswordField from '../components/shared/PasswordField';
 import { Link, useNavigate } from 'react-router-dom';
 import {useCookies} from 'react-cookie';
-import { makeUnAuthenticatePOSTrequest } from '../utils/serverHelper';
+// import { makeUnAuthenticatePOSTrequest } from '../utils/serverHelper';
 import { auth } from "../utils/firebase";
 import { signInWithEmailAndPassword, getAuth} from "firebase/auth";
 
@@ -32,7 +32,7 @@ function Login() {
             .catch(error => console.error('Error:', error));
           });
         navigate('/');
-        console.log("Logged in: ", userCredential.user);
+        // console.log("Logged in: ", userCredential.user.uid);
       })
       .catch((error) => {
         console.error(error.message);

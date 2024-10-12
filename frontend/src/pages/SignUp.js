@@ -22,13 +22,15 @@ function SignUp() {
     
     const register = async ()=>{
 
-        const data = {email, confirmEmail, userName, password, firstName, lastName};
+        
         if(confirmEmail !== email){
             alert('email does not match');
             return;
         }
         createUserWithEmailAndPassword(auth, email, password)
       .then(async (userCredential) => {
+        const uid = userCredential.user.uid;
+        const data = {email, confirmEmail, userName, password, firstName, lastName, uid};
         const response = await makeUnAuthenticatePOSTrequest('/auth/register', data);
         if(response && !response.error){
             console.log(response);
@@ -40,7 +42,7 @@ function SignUp() {
             alert('failure');
         }
         navigate('/');
-        console.log("Signed up: ", userCredential.user);
+        console.log("Signed up: ", userCredential.user.uid);
       })
       .catch((error) => {
         console.error(error.message);

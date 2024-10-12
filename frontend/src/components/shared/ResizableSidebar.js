@@ -9,6 +9,7 @@ import { IoIosArrowRoundForward } from "react-icons/io";
 import Navbar from './Navbar';
 import ArtistCard from './ArtistCard';
 import PlaylistCardView from './PlaylistCardView';
+import { getAuth } from "firebase/auth";
 
 function ResizableSidebar() {
   const screenW = window.innerWidth;
@@ -16,6 +17,9 @@ function ResizableSidebar() {
   const [isResizing, setIsResizing] = useState(false);
   const [screenSizing, setScreenSizing] = useState(screenW - sidebarWidth);
   // const scree = window.innerWidth;
+  const auth = getAuth();
+  const user = auth.currentUser;
+  console.log(`User from home page ${JSON.stringify(user)}`);
 
   const playlistData = [
     {
