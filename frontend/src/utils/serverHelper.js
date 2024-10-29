@@ -17,8 +17,7 @@ export const makeAuthenticatePOSTrequest = async (route, body) =>{
     const response = await fetch(backendUrl + route, {
         method:'POST',
         headers:{
-            "Content-Type" : "application/json",
-            Authorization: `Bearer ${token}`,
+            "Content-Type" : "application/json"
         },
         body: JSON.stringify(body),
     })
@@ -49,7 +48,8 @@ export const getToken = async() => {
       throw error;
     }
   } else {
-    throw new Error("No user is authenticated");
+    // throw new Error("No user is authenticated");
+    return false;
   }
 };
 // const accessToken = document.cookie.replace(

@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import spotify_logo from '../components/shared/spotify_logo_white.svg';
-import { MdHomeFilled, MdKeyboardArrowLeft, MdKeyboardArrowRight, MdLibraryMusic } from "react-icons/md";
-import { VscFolderLibrary } from "react-icons/vsc";
-import { FaSearch, FaPlay } from "react-icons/fa";
-import { AiOutlinePlus } from "react-icons/ai";
-import { IoIosArrowRoundForward } from "react-icons/io";
-import Playlist from '../components/shared/Playlist';
-import { Link } from 'react-router-dom';
+// import spotify_logo from '../components/shared/spotify_logo_white.svg';
+// import { MdHomeFilled, MdKeyboardArrowLeft, MdKeyboardArrowRight, MdLibraryMusic } from "react-icons/md";
+// import { VscFolderLibrary } from "react-icons/vsc";
+// import { FaSearch, FaPlay } from "react-icons/fa";
+// import { AiOutlinePlus } from "react-icons/ai";
+// import { IoIosArrowRoundForward } from "react-icons/io";
+// import Playlist from '../components/shared/Playlist';
+// import { Link } from 'react-router-dom';
 import SongsList from '../components/shared/SongsList';
-import { makeAuthenticateGETrequest } from '../utils/serverHelper';
+// import { makeAuthenticateGETrequest } from '../utils/serverHelper';
 import { Howl, Howler } from 'howler';
 import LogedInContainer from '../containers/LogedInContainer';
 
@@ -18,8 +18,15 @@ function Mymusic() {
     const [songPlayed, setSongPlayed] = useState(null)
     useEffect(() => {
         const getSong = async () => {
-            const response = await makeAuthenticateGETrequest('/song/get/mysong')
-            setSongData(response.data);
+            // const response = await makeAuthenticateGETrequest('/song/get/mysong');
+            const response = await fetch('http://localhost:8000/song/get/allsong', {
+                method:'GET',
+                headers:{
+                    "Content-Type" : "application/json"
+                }
+            })
+            const formatedResponse = await response.json();
+            setSongData(formatedResponse.data);
         }
         getSong();
     }, [])

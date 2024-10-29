@@ -18,7 +18,7 @@ import useUser from '../hooks/useUser';
 import { useQueryClient } from 'react-query';
 
 function LogedInHome() {
-  const { data, isLoading, isError } = useUser();
+  const { data, isLoading, isError,refetch } = useUser();
   console.log(`data from react-query ${data}`);
   const queryClient = useQueryClient();
   const auth = getAuth();

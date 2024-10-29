@@ -15,11 +15,12 @@ import { Howl, Howler } from 'howler';
 import songContext from '../context/SongContext';
 import useUser from '../hooks/useUser';
 import { useQueryClient } from 'react-query';
+import { auth } from '../utils/firebase';
 
 
 function LogedInContainer({ children }) {
     const { data, isLoading, isError } = useUser();
-    console.log(`data from react-query ${data}`);
+    console.log("data from react-query", data);
     const queryClient = useQueryClient();
     const screenW = window.innerWidth;
     const [sidebarWidth, setSidebarWidth] = useState(400);
@@ -33,6 +34,11 @@ function LogedInContainer({ children }) {
 
     const { currentSong, setCurrentSong } = useContext(songContext);
     // console.log(currentSong);
+    const signOutUser = async ()=>{
+        await auth.signOut().then(()=>{
+            queryClient.setQueryData('User', null);
+        })
+    }
 
     const playSong = (songSrc) => {
         if (songPlayed) {
@@ -91,7 +97,7 @@ function LogedInContainer({ children }) {
     };
     return (
         <div className='h-screen w-full'>
-{/* ${currentSong ? "h-9/10" : "h-full"} */}
+            {/* ${currentSong ? "h-9/10" : "h-full"} */}
             <div className={`${currentSong ? "h-9/10" : "h-full"} flex w-full`}>
                 <div
                     className="bg-[#1F2544] text-white h-auto" //overflow-auto
@@ -163,12 +169,30 @@ function LogedInContainer({ children }) {
                                 <span className='p-2 bg-black items-center rounded-full cursor-pointer mx-2'><MdKeyboardArrowRight size={30} /></span>
                             </div>
                             <div className="left flex items-center">
-                                <Link to={'/upload'}>
-                                    <button className='text-white p-4 px-4 font-semibold rounded-full'>Upload</button>
-                                </Link>
-                                <Link to={'/login'}>
-                                    <button className='bg-[#1db954] h-10 w-10 font-semibold rounded-full mx-4 '>RR</button>
-                                </Link>
+                                {data ? (
+                                    <>
+                                        <Link to={'/upload'}>
+                                            <button className='text-white p-4 px-4 font-semibold rounded-full'>Upload</button>
+                                        </Link>
+                                        <div className='text-white p-4 px-4 font-semibold rounded-full cursor-pointer' onClick={signOutUser}>
+                                            Log Out
+                                        </div>
+                                        <Link to={'/login'}>
+                                            <button className='bg-[#1db954] h-10 w-10 font-semibold rounded-full mx-4 text-white text-xl'>{data?.email[0].toUpperCase()}</button>
+                                        </Link>
+                                    </>
+                                ) : (
+                                    <>
+                                        <Link to={'/signup'}>
+                                            <button className='text-white p-4 px-4 font-semibold rounded-full'>Sign Up</button>
+                                        </Link>
+                                        <Link to={'/login'}>
+                                            <button className='text-white p-4 px-4 font-semibold rounded-full'>LogIn</button>
+                                        </Link>
+
+                                    </>
+                                )}
+
 
                             </div>
                         </div>
@@ -207,8 +231,8 @@ function LogedInContainer({ children }) {
                         Volume Control
                     </div>
                 </div>
-            
-        }
+
+            }
         </div>
     )
 }

@@ -5,11 +5,11 @@ export const getUserDetail = () => {
         const unsubscribe = auth.onAuthStateChanged(async (userCred) => {
             if (userCred) {
                 try {
-                    const userData = userCred.providerData[0];
+                    // const userData = userCred.providerData[0];
                     const currentUser = auth.currentUser;
                     const id = currentUser.uid;
                     const url = `http://localhost:8000/auth/user/${id}`;
-                    console.log(id);
+                    // console.log(currentUser);
                     const response = await fetch(url, {
                         method: 'GET',
                         headers: {
