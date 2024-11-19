@@ -17,13 +17,13 @@ import { getToken } from './utils/serverHelper';
 function App() {
 
   // const [cookie, setCookie] = useCookies(['token']);
-  
+
   const [token, setToken] = useState(null);
   // const [currentSong, setCurrentSong] = useState(null);
   const queryClient = new QueryClient();
 
-  useEffect(()=>{
-    const fetchToken = async ()=>{
+  useEffect(() => {
+    const fetchToken = async () => {
       try {
         const fetchedToken = await getToken();
         setToken(fetchedToken);
@@ -32,20 +32,26 @@ function App() {
       }
     }
     fetchToken();
-  },[])
+  }, [])
 
   return (
+    //bug:1. if we check authentication in parent container logedincontainer by using getauth then it's 
+    // shows that i loged in but if i chechek in child component then it's show i am not logged in. whenever
+    // i logged in first time using email and password it shows but after that like i refresh the page it shows null
+    // bug:2. when i  logout it doesn't change the ui according to that or i think i should check the log out
+    // functionality wheter it's properly working or not 
+    // bug:3. react-query doesn't show the state and the data in their tab
     <div className='App'>
       <QueryClientProvider client={queryClient}>
-          <Routes>
+        <Routes>
           <Route path='/' element={<LogedInHome />} />
-               <Route path='/upload' element={<UploadSong />} />
-               <Route path='/mymusic' element={<Mymusic />} />
-               <Route path='*' element={<Navigate to="/" />} />
-               <Route path='/login' element={<Login />} />
-               <Route path='/signup' element={<SignUp />} />
-          </Routes>
-          <ReactQueryDevtools initialIsOpen={false}/>
+          <Route path='/upload' element={<UploadSong />} />
+          <Route path='/mymusic' element={<Mymusic />} />
+          <Route path='*' element={<Navigate to="/" />} />
+          <Route path='/login' element={<Login />} />
+          <Route path='/signup' element={<SignUp />} />
+        </Routes>
+        <ReactQueryDevtools initialIsOpen={false} />
       </QueryClientProvider>
     </div>
     // <div className="App">

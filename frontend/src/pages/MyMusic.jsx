@@ -11,11 +11,13 @@ import SongsList from '../components/shared/SongsList';
 // import { makeAuthenticateGETrequest } from '../utils/serverHelper';
 import { Howl, Howler } from 'howler';
 import LogedInContainer from '../containers/LogedInContainer';
+import useCurrentSong from '../hooks/useCurrentSong';
 
 
 function Mymusic() {
     const [songData, setSongData] = useState([]);
-    const [songPlayed, setSongPlayed] = useState(null)
+    const [songPlayed, setSongPlayed] = useState(null);
+    const {data:currentSong,isLoading:songLoading,isError:songError,refetch:songRefetch} = useCurrentSong();
     useEffect(() => {
         const getSong = async () => {
             // const response = await makeAuthenticateGETrequest('/song/get/mysong');

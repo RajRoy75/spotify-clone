@@ -15,12 +15,12 @@ import PlaylistCardView from '../components/shared/PlaylistCardView';
 import LogedInContainer from '../containers/LogedInContainer';
 import { getAuth } from "firebase/auth";
 import useUser from '../hooks/useUser';
-import { useQueryClient } from 'react-query';
+// import { useQueryClient } from 'react-query';
 
 function LogedInHome() {
   const { data, isLoading, isError,refetch } = useUser();
-  console.log(`data from react-query ${data}`);
-  const queryClient = useQueryClient();
+  // console.log(`data from react-query `, data);
+  // const queryClient = useQueryClient();
   const auth = getAuth();
   const user = auth.currentUser;
   console.log("user from home page ", user);

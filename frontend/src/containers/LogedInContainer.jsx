@@ -16,11 +16,17 @@ import songContext from '../context/SongContext';
 import useUser from '../hooks/useUser';
 import { useQueryClient } from 'react-query';
 import { auth } from '../utils/firebase';
+import { getAuth } from 'firebase/auth';
+import useCurrentSong from '../hooks/useCurrentSong';
 
 
 function LogedInContainer({ children }) {
-    const { data, isLoading, isError } = useUser();
+    const auth = getAuth();
+   const user = auth.currentUser;
+   console.log("user from home page ", user);
+    const { data, isLoading, isError,refetch } = useUser();
     console.log("data from react-query", data);
+    const {data:currentSong,isLoading:songLoading,isError:songError,refetch:songRefetch} = useCurrentSong();
     const queryClient = useQueryClient();
     const screenW = window.innerWidth;
     const [sidebarWidth, setSidebarWidth] = useState(400);
@@ -32,28 +38,76 @@ function LogedInContainer({ children }) {
     // const scree = window.innerWidth;
     const songUrlHC = "https://res.cloudinary.com/djtwqlcgo/video/upload/v1711198154/gbdduppidnjchcorl5nl.mp3";
 
-    const { currentSong, setCurrentSong } = useContext(songContext);
+    // const { currentSong, setCurrentSong } = useContext(songContext);
     // console.log(currentSong);
     const signOutUser = async ()=>{
         await auth.signOut().then(()=>{
             queryClient.setQueryData('User', null);
         })
     }
-
     const playSong = (songSrc) => {
         if (songPlayed) {
-            songPlayed.stop();
+            // If a song is already loaded
+            if (songPlayed.playing()) {
+                // Pause if currently playing
+                songPlayed.pause();
+                setIsPlaying(false);
+            } else {
+                // Play if paused
+                songPlayed.play();
+                setIsPlaying(true);
+            }
+        } else {
+            // Load and play a new song if no song is loaded
+            const sound = new Howl({
+                src: [songSrc],
+                html5: true,
+            });
+            setSongPlayed(sound);
+            sound.play();
+            setIsPlaying(true);
+        }
+        // if (songPlayed) {
+        //     songPlayed.stop();
+        //     setIsPlaying(false);
+        // }
+        // var sound = new Howl({
+        //     src: [songSrc],
+        //     html5: true
+        // });
+        // setSongPlayed(sound)
+        // sound.play();
+        // setIsPlaying(true);
+    }
+
+    
+    // const playPause = () => {
+    //     if (songPlayed) {
+    //         if (songPlayed.playing()) {
+    //             songPlayed.pause();
+    //             setIsPlaying(false);
+    //         } else {
+    //             songPlayed.play();
+    //             setIsPlaying(true);
+    //         }
+    //     }
+    // }
+    useEffect(() => {
+        if (currentSong) {
+            if (songPlayed) {
+                songPlayed.stop(); // Stop the previous song
+            }
+            const newSong = new Howl({
+                src: [currentSong.track], // Use the source from `currentSong`
+                html5: true,
+            });
+            setSongPlayed(newSong);
+            // newSong.play();
             setIsPlaying(false);
         }
-        var sound = new Howl({
-            src: [songSrc],
-            html5: true
-        });
-        setSongPlayed(sound)
-        sound.play();
-        setIsPlaying(true);
-    }
-    const playPause = () => {
+    }, [currentSong]); // Re-run effect whenever `currentSong` changes
+
+    const togglePlayPause = () => {
         if (songPlayed) {
             if (songPlayed.playing()) {
                 songPlayed.pause();
@@ -63,7 +117,7 @@ function LogedInContainer({ children }) {
                 setIsPlaying(true);
             }
         }
-    }
+    };
 
     useEffect(() => {
         const handleMouseMove = (e) => {
@@ -109,10 +163,13 @@ function LogedInContainer({ children }) {
                             <img src={spotify_logo} alt="error" />
                         </div>
                         <div className="sidebar1 mt-2">
+                            <Link to={'/'}>
                             <span className='flex flex-row items-center py-2 cursor-pointer'>
                                 <MdHomeFilled size={20} />
                                 <h2 className='px-3 text-xl font-poppins font-normal'>Home</h2>
                             </span>
+                            </Link>
+                            
                             <span className='flex flex-row items-center py-2 cursor-pointer'>
                                 <FaSearch size={20} />
                                 <h2 className='px-3 text-xl font-poppins font-normal'>Search</h2>
@@ -215,12 +272,13 @@ function LogedInContainer({ children }) {
                         <div className='pl-4 flex flex-col justify-between'>
                             <span className='font-semibold cursor-pointer'>{currentSong.name}</span>
                             <span className='font-normal text-xs text-gray-300 cursor-pointer' >{currentSong.artist.firstName + " " + currentSong.artist.lastName}</span>
+                            
                         </div>
                     </div>
                     <div >
                         <div className='flex items-center absolute top-1 justify-center'>
                             <span><IoPlaySkipBack size={25} color="grey" className='hover:cursor-pointer ' /></span>
-                            <span className='hover:scale-110 cursor-pointer mx-2' onClick={() => { playPause() }}>
+                            <span className='hover:scale-110 cursor-pointer mx-2' onClick={() => { togglePlayPause()}}>
                                 {isPlaying ? <IoPauseCircle size={40} /> : <IoPlayCircle size={40} />}
                             </span>
                             <span><IoPlaySkipForwardSharp size={25} color="grey" className='hover:cursor-pointer' /></span>
