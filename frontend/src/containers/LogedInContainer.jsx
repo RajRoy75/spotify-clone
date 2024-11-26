@@ -5,6 +5,7 @@ import { VscFolderLibrary } from "react-icons/vsc";
 import { FaSearch } from "react-icons/fa";
 import { AiOutlinePlus } from "react-icons/ai";
 import { IoIosArrowRoundForward } from "react-icons/io";
+import { ImVolumeMedium, ImVolumeMute2 } from "react-icons/im";
 import { IoPlaySkipBack, IoPlaySkipForwardSharp, IoPlayCircle, IoPauseCircle } from "react-icons/io5";
 import Playlist from '../components/shared/Playlist';
 // import Navbar from '../components/shared/Navbar';
@@ -22,11 +23,11 @@ import useCurrentSong from '../hooks/useCurrentSong';
 
 function LogedInContainer({ children }) {
     const auth = getAuth();
-   const user = auth.currentUser;
-   console.log("user from home page ", user);
-    const { data, isLoading, isError,refetch } = useUser();
+    const user = auth.currentUser;
+    console.log("user from home page ", user);
+    const { data, isLoading, isError, refetch } = useUser();
     console.log("data from react-query", data);
-    const {data:currentSong,isLoading:songLoading,isError:songError,refetch:songRefetch} = useCurrentSong();
+    const { data: currentSong, isLoading: songLoading, isError: songError, refetch: songRefetch } = useCurrentSong();
     const queryClient = useQueryClient();
     const screenW = window.innerWidth;
     const [sidebarWidth, setSidebarWidth] = useState(400);
@@ -35,13 +36,15 @@ function LogedInContainer({ children }) {
     // const [songData, setSongData] = useState([]);
     const [songPlayed, setSongPlayed] = useState(null);
     const [isPlaying, setIsPlaying] = useState(false);
+    const [isMute, setIsMute] = useState(false);
+    const [volume, setVolume] = useState(0.3);
     // const scree = window.innerWidth;
     const songUrlHC = "https://res.cloudinary.com/djtwqlcgo/video/upload/v1711198154/gbdduppidnjchcorl5nl.mp3";
 
     // const { currentSong, setCurrentSong } = useContext(songContext);
     // console.log(currentSong);
-    const signOutUser = async ()=>{
-        await auth.signOut().then(()=>{
+    const signOutUser = async () => {
+        await auth.signOut().then(() => {
             queryClient.setQueryData('User', null);
         })
     }
@@ -67,6 +70,8 @@ function LogedInContainer({ children }) {
             sound.play();
             setIsPlaying(true);
         }
+
+
         // if (songPlayed) {
         //     songPlayed.stop();
         //     setIsPlaying(false);
@@ -79,8 +84,29 @@ function LogedInContainer({ children }) {
         // sound.play();
         // setIsPlaying(true);
     }
+    const updateVolume = (e) => {
+        const newVoulume = e.target.value / 100;
+        setVolume(newVoulume);
+        if (songPlayed) {
+            songPlayed.volume(newVoulume);
+        }
+    }
+    const toggleMute = () => {
+        if (isMute) {
+            if (songPlayed) {
+                songPlayed.volume(volume);
+                setIsMute(false);
+            }
+        } else {
+            if (songPlayed) {
+                songPlayed.volume(0);
+                setIsMute(true);
+            }
 
-    
+        }
+    }
+
+
     // const playPause = () => {
     //     if (songPlayed) {
     //         if (songPlayed.playing()) {
@@ -100,6 +126,7 @@ function LogedInContainer({ children }) {
             const newSong = new Howl({
                 src: [currentSong.track], // Use the source from `currentSong`
                 html5: true,
+                onend: () => setIsPlaying(false),
             });
             setSongPlayed(newSong);
             // newSong.play();
@@ -164,12 +191,12 @@ function LogedInContainer({ children }) {
                         </div>
                         <div className="sidebar1 mt-2">
                             <Link to={'/'}>
-                            <span className='flex flex-row items-center py-2 cursor-pointer'>
-                                <MdHomeFilled size={20} />
-                                <h2 className='px-3 text-xl font-poppins font-normal'>Home</h2>
-                            </span>
+                                <span className='flex flex-row items-center py-2 cursor-pointer'>
+                                    <MdHomeFilled size={20} />
+                                    <h2 className='px-3 text-xl font-poppins font-normal'>Home</h2>
+                                </span>
                             </Link>
-                            
+
                             <span className='flex flex-row items-center py-2 cursor-pointer'>
                                 <FaSearch size={20} />
                                 <h2 className='px-3 text-xl font-poppins font-normal'>Search</h2>
@@ -267,26 +294,40 @@ function LogedInContainer({ children }) {
                 <div className='bg-black h-1/10 flex justify-between text-white px-5 items-center relative'>
                     <div className='flex'>
                         <div className='w-[50px] h-[50px] rounded-full' onClick={() => { playSong(currentSong.track) }}>
-                            <img src={currentSong.thumbnail} alt="error" className='rounded object-cover w-[50px] h-[50px] cursor-pointer' />
+                            <img src={currentSong.thumbnail || ''} alt="error" className='rounded object-cover w-[50px] h-[50px] cursor-pointer' />
                         </div>
                         <div className='pl-4 flex flex-col justify-between'>
-                            <span className='font-semibold cursor-pointer'>{currentSong.name}</span>
+                            <span className='font-semibold cursor-pointer'>{songLoading ? 'Loading...': currentSong.name}</span>
                             <span className='font-normal text-xs text-gray-300 cursor-pointer' >{currentSong.artist.firstName + " " + currentSong.artist.lastName}</span>
-                            
+
                         </div>
                     </div>
-                    <div >
-                        <div className='flex items-center absolute top-1 justify-center'>
+                    <div className='flex items-center justify-center'>
+                        <div className='flex items-center  justify-center'>
                             <span><IoPlaySkipBack size={25} color="grey" className='hover:cursor-pointer ' /></span>
-                            <span className='hover:scale-110 cursor-pointer mx-2' onClick={() => { togglePlayPause()}}>
+                            <span className='hover:scale-110 cursor-pointer mx-2' onClick={() => { togglePlayPause() }}>
                                 {isPlaying ? <IoPauseCircle size={40} /> : <IoPlayCircle size={40} />}
                             </span>
                             <span><IoPlaySkipForwardSharp size={25} color="grey" className='hover:cursor-pointer' /></span>
                         </div>
-                        <div></div>
                     </div>
-                    <div>
-                        Volume Control
+                    <div className='flex items-center justify-center'>
+                        <div>
+                            <span onClick={() => { toggleMute() }} className='cursor-pointer'>
+                                {isMute ? <ImVolumeMute2 size={25} color="#D91656" className='mx-2'/> : <ImVolumeMedium size={25} className='mx-2'  />}
+                                
+                                </span>
+                        </div>
+                        <div>
+                            <input
+                                type="range"
+                                className='accent-slate-500 cursor-pointer'
+                                value={volume * 100}
+                                min={0}
+                                max={100}
+                                onChange={updateVolume}
+                            />
+                        </div>
                     </div>
                 </div>
 

@@ -22,7 +22,7 @@ function SongsList({ data, playSong }) {
                         <th className='p-3 font-semibold text-sm tracking-wide text-left'>Time</th>
                     </tr>
                 </thead>
-                <tbody className='text-white '>
+                <tbody className='text-white cursor-pointer'>
                     {data.map((item,index) => {
                         return (
                             <tr className='bg-gradient-to-r from-violet-500 to-fuchsia-500' onClick={() => { setCurrentSong(item) }} key={index}>
