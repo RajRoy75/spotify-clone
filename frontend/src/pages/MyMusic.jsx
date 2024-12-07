@@ -17,6 +17,7 @@ import useCurrentSong from '../hooks/useCurrentSong';
 function Mymusic() {
     const [songData, setSongData] = useState([]);
     const [songPlayed, setSongPlayed] = useState(null);
+    const [isPlaying, setIsPlaying] = useState(false);
     const {data:currentSong,isLoading:songLoading,isError:songError,refetch:songRefetch} = useCurrentSong();
     useEffect(() => {
         const getSong = async () => {
@@ -32,6 +33,22 @@ function Mymusic() {
         }
         getSong();
     }, [])
+
+    useEffect(() => {
+        if (currentSong) {
+            if (songPlayed) {
+                songPlayed.stop(); // Stop the previous song
+            }
+            const newSong = new Howl({
+                src: [currentSong.track], // Use the source from `currentSong`
+                html5: true,
+                onend: () => setIsPlaying(false),
+            });
+            setSongPlayed(newSong);
+            // newSong.play();
+            setIsPlaying(false);
+        }
+    }, [currentSong]); // Re-run effect whenever `currentSong` changes
 
     const playSong = (songSrc)=>{
                 if(songPlayed){

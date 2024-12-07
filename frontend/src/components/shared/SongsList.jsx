@@ -2,6 +2,7 @@ import React from 'react'
 // import songContext from '../../context/SongContext'
 import useCurrentSong from '../../hooks/useCurrentSong';
 import { useQueryClient } from 'react-query';
+import { Howl } from 'howler';
 
 function SongsList({ data, playSong }) {
     // const { currentSong, setCurrentSong } = useContext(songContext);
@@ -11,6 +12,16 @@ function SongsList({ data, playSong }) {
     const setCurrentSong = (item)=>{
         queryClient.setQueryData("currentSong",item);
         localStorage.setItem('currentSong', JSON.stringify(item));
+    }
+    const getDuration = (url)=>{
+        const sound = new Howl({src:url});
+        const durationInSeconds = sound.duration();
+        return formatedTime(durationInSeconds)
+    }
+    const formatedTime = (seconds)=>{
+        const minutes = Math.floor(seconds/60);
+        const sec = Math.floor(seconds%60);
+        return `${minutes}:${sec<10 ? '0':''}${sec}`;
     }
     return (
         <>
@@ -35,8 +46,9 @@ function SongsList({ data, playSong }) {
                                     {item.artist.firstName + " " + item.artist.lastName}
                                 </td>
                                 <td className='text-base'>
-                                    Song Duration
+                                    {getDuration(item.track)}
                                 </td>
+                                {console.log(item.track)}
                             </tr>
                         )
                     })}

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useRef } from 'react';
 import spotify_logo from '../components/shared/spotify_logo_white.svg';
 import { MdHomeFilled, MdKeyboardArrowLeft, MdKeyboardArrowRight, MdLibraryMusic } from "react-icons/md";
 import { VscFolderLibrary } from "react-icons/vsc";
@@ -8,12 +8,8 @@ import { IoIosArrowRoundForward } from "react-icons/io";
 import { ImVolumeMedium, ImVolumeMute2 } from "react-icons/im";
 import { IoPlaySkipBack, IoPlaySkipForwardSharp, IoPlayCircle, IoPauseCircle } from "react-icons/io5";
 import Playlist from '../components/shared/Playlist';
-// import Navbar from '../components/shared/Navbar';
-// import ArtistCard from '../components/shared/ArtistCard';
-// import PlaylistCardView from '../components/shared/PlaylistCardView';
 import { Link } from 'react-router-dom';
 import { Howl, Howler } from 'howler';
-import songContext from '../context/SongContext';
 import useUser from '../hooks/useUser';
 import { useQueryClient } from 'react-query';
 import { auth } from '../utils/firebase';
@@ -38,16 +34,23 @@ function LogedInContainer({ children }) {
     const [isPlaying, setIsPlaying] = useState(false);
     const [isMute, setIsMute] = useState(false);
     const [volume, setVolume] = useState(0.3);
-    // const scree = window.innerWidth;
-    const songUrlHC = "https://res.cloudinary.com/djtwqlcgo/video/upload/v1711198154/gbdduppidnjchcorl5nl.mp3";
+    const[songDuration, setSongDuration] = useState('00:00');
+    const [playBackTime, setPlayBackTime] = useState('0:00');
+    const [songBar, setSongBar] = useState(0);
+    // const[currentDuration, setCurrentDuration] = useState(0);
 
-    // const { currentSong, setCurrentSong } = useContext(songContext);
-    // console.log(currentSong);
+
     const signOutUser = async () => {
         await auth.signOut().then(() => {
             queryClient.setQueryData('User', null);
         })
     }
+
+    // const getSongDuration = ()=>{
+    //     if
+    // }
+
+
     const playSong = (songSrc) => {
         if (songPlayed) {
             // If a song is already loaded
@@ -70,19 +73,6 @@ function LogedInContainer({ children }) {
             sound.play();
             setIsPlaying(true);
         }
-
-
-        // if (songPlayed) {
-        //     songPlayed.stop();
-        //     setIsPlaying(false);
-        // }
-        // var sound = new Howl({
-        //     src: [songSrc],
-        //     html5: true
-        // });
-        // setSongPlayed(sound)
-        // sound.play();
-        // setIsPlaying(true);
     }
     const updateVolume = (e) => {
         const newVoulume = e.target.value / 100;
@@ -105,35 +95,47 @@ function LogedInContainer({ children }) {
 
         }
     }
-
-
-    // const playPause = () => {
-    //     if (songPlayed) {
-    //         if (songPlayed.playing()) {
-    //             songPlayed.pause();
-    //             setIsPlaying(false);
-    //         } else {
-    //             songPlayed.play();
-    //             setIsPlaying(true);
-    //         }
-    //     }
-    // }
     useEffect(() => {
         if (currentSong) {
             if (songPlayed) {
                 songPlayed.stop(); // Stop the previous song
+                setPlayBackTime(0)
+                setSongBar(0);
             }
             const newSong = new Howl({
                 src: [currentSong.track], // Use the source from `currentSong`
                 html5: true,
                 onend: () => setIsPlaying(false),
+                onload: ()=>{
+                    // let time = formatedTime(newSong.duration());
+                    setSongDuration(newSong.duration());
+                    // console.log(time);
+                }
             });
+            // let time = formatedTime(newSong.duration());
+            // console.log(newSong.duration());
+            // setSongDuration(formatedTime);
             setSongPlayed(newSong);
             // newSong.play();
             setIsPlaying(false);
         }
     }, [currentSong]); // Re-run effect whenever `currentSong` changes
 
+    useEffect(() => {
+        let interval;
+        if (isPlaying && songPlayed) {
+            interval = setInterval(() => {
+                if (songPlayed.playing()) {
+                    const currentTime = songPlayed.seek(); // Get current playback time
+                    setPlayBackTime(currentTime);
+                    setSongBar((currentTime / songDuration) * 100); // Calculate progress percentage
+                }
+            }, 500); // Update every second
+        }
+
+        return () => clearInterval(interval); // Cleanup on unmount or when paused
+    }, [isPlaying, songPlayed, songDuration]);
+    
     const togglePlayPause = () => {
         if (songPlayed) {
             if (songPlayed.playing()) {
@@ -145,6 +147,16 @@ function LogedInContainer({ children }) {
             }
         }
     };
+    const updateSlider = (e)=>{
+        const newBarValue = parseInt(e.target.value,10);
+        const newPlayBackTime = (newBarValue/100) * songDuration;
+        setPlayBackTime(newPlayBackTime);
+        setSongBar(newBarValue);
+        if(songPlayed){
+            songPlayed.seek(newPlayBackTime);
+            // if(!isPlaying) togglePlayPause();
+        }
+    }
 
     useEffect(() => {
         const handleMouseMove = (e) => {
@@ -176,6 +188,13 @@ function LogedInContainer({ children }) {
     const handleMouseDown = () => {
         setIsResizing(true);
     };
+
+    const formatedTime = (seconds)=>{
+        const minutes = Math.floor(seconds/60);
+        const sec = Math.floor(seconds%60);
+        return `${minutes}:${sec<10 ? '0':''}${sec}`;
+    }
+
     return (
         <div className='h-screen w-full'>
             {/* ${currentSong ? "h-9/10" : "h-full"} */}
@@ -291,32 +310,47 @@ function LogedInContainer({ children }) {
             {
                 currentSong &&
 
-                <div className='bg-black h-1/10 flex justify-between text-white px-5 items-center relative'>
+                <div className='bg-black h-1/10 flex justify-between text-white px-5 items-center relative w-full z-1'>
                     <div className='flex'>
                         <div className='w-[50px] h-[50px] rounded-full' onClick={() => { playSong(currentSong.track) }}>
                             <img src={currentSong.thumbnail || ''} alt="error" className='rounded object-cover w-[50px] h-[50px] cursor-pointer' />
                         </div>
                         <div className='pl-4 flex flex-col justify-between'>
-                            <span className='font-semibold cursor-pointer'>{songLoading ? 'Loading...': currentSong.name}</span>
+                            <span className='font-semibold cursor-pointer'>{songLoading ? 'Loading...' : currentSong.name}</span>
                             <span className='font-normal text-xs text-gray-300 cursor-pointer' >{currentSong.artist.firstName + " " + currentSong.artist.lastName}</span>
 
                         </div>
                     </div>
-                    <div className='flex items-center justify-center'>
-                        <div className='flex items-center  justify-center'>
-                            <span><IoPlaySkipBack size={25} color="grey" className='hover:cursor-pointer ' /></span>
-                            <span className='hover:scale-110 cursor-pointer mx-2' onClick={() => { togglePlayPause() }}>
-                                {isPlaying ? <IoPauseCircle size={40} /> : <IoPlayCircle size={40} />}
-                            </span>
-                            <span><IoPlaySkipForwardSharp size={25} color="grey" className='hover:cursor-pointer' /></span>
+                    <div className='flex items-center justify-center flex-col'>
+                        <div>
+                            <div className='flex items-center  justify-center'>
+                                <span><IoPlaySkipBack size={25} color="grey" className='hover:cursor-pointer ' /></span>
+                                <span className='hover:scale-110 cursor-pointer mx-2' onClick={() => { togglePlayPause() }}>
+                                    {isPlaying ? <IoPauseCircle size={40} /> : <IoPlayCircle size={40} />}
+                                </span>
+                                <span><IoPlaySkipForwardSharp size={25} color="grey" className='hover:cursor-pointer' /></span>
+                            </div>
                         </div>
+                        <div className='flex '>
+                            <span>{formatedTime(playBackTime)}</span>
+                            <div>
+                                <input 
+                                type="range"
+                                className='cursor-pointer'
+                                min={0}
+                                max={100}
+                                value={songBar} 
+                                onChange={updateSlider}/>
+                            </div>
+                            <span>{formatedTime(songDuration)}</span>
+                        </div> 
                     </div>
                     <div className='flex items-center justify-center'>
                         <div>
                             <span onClick={() => { toggleMute() }} className='cursor-pointer'>
-                                {isMute ? <ImVolumeMute2 size={25} color="#D91656" className='mx-2'/> : <ImVolumeMedium size={25} className='mx-2'  />}
-                                
-                                </span>
+                                {isMute ? <ImVolumeMute2 size={25} color="#D91656" className='mx-2' /> : <ImVolumeMedium size={25} className='mx-2' />}
+
+                            </span>
                         </div>
                         <div>
                             <input
