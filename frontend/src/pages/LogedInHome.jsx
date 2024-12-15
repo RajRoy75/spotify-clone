@@ -54,7 +54,8 @@ function LogedInHome() {
   ]
 
   return (
-    <LogedInContainer>
+
+    <div>
       <h2 className='text-white font-bold text-2xl my-2'>Popular Artist</h2>
       <div className='grid grid-auto-flow grid-cols-5 gap-2'>
         <ArtistCard
@@ -85,7 +86,9 @@ function LogedInHome() {
       </div>
       <PlaylistCardView title={"Hindi Playlist"} playlisData={playlistData} />
       <PlaylistCardView title={"English Playlist"} playlisData={playlistData} />
-    </LogedInContainer>
+    </div>
+      
+
   )
 }
 

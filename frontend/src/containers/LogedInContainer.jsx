@@ -15,6 +15,7 @@ import { useQueryClient } from 'react-query';
 import { auth } from '../utils/firebase';
 import { getAuth } from 'firebase/auth';
 import useCurrentSong from '../hooks/useCurrentSong';
+import { usePlayer } from '../hooks/playerProvider';
 
 
 function LogedInContainer({ children }) {
@@ -30,15 +31,27 @@ function LogedInContainer({ children }) {
     const [isResizing, setIsResizing] = useState(false);
     const [screenSizing, setScreenSizing] = useState(screenW - sidebarWidth);
     // const [songData, setSongData] = useState([]);
-    const [songPlayed, setSongPlayed] = useState(null);
-    const [isPlaying, setIsPlaying] = useState(false);
+    // const [songPlayed, setSongPlayed] = useState(null);
+    // const [isPlaying, setIsPlaying] = useState(false);
     const [isMute, setIsMute] = useState(false);
     const [volume, setVolume] = useState(0.3);
-    const[songDuration, setSongDuration] = useState('00:00');
-    const [playBackTime, setPlayBackTime] = useState('0:00');
-    const [songBar, setSongBar] = useState(0);
+    const [songDuration, setSongDuration] = useState('00:00');
+    // const [playBackTime, setPlayBackTime] = useState('0:00');
+    // const [songBar, setSongBar] = useState(0);
     // const[currentDuration, setCurrentDuration] = useState(0);
 
+    const {
+        songPlayed,
+        setSongPlayed,
+        isPlaying,
+        setIsPlaying,
+        playBackTime,
+        setPlayBackTime,
+        songBar,
+        setSongBar,
+    } = usePlayer();
+    console.log(songPlayed);
+    // console.log(songBar);
 
     const signOutUser = async () => {
         await auth.signOut().then(() => {
@@ -51,29 +64,29 @@ function LogedInContainer({ children }) {
     // }
 
 
-    const playSong = (songSrc) => {
-        if (songPlayed) {
-            // If a song is already loaded
-            if (songPlayed.playing()) {
-                // Pause if currently playing
-                songPlayed.pause();
-                setIsPlaying(false);
-            } else {
-                // Play if paused
-                songPlayed.play();
-                setIsPlaying(true);
-            }
-        } else {
-            // Load and play a new song if no song is loaded
-            const sound = new Howl({
-                src: [songSrc],
-                html5: true,
-            });
-            setSongPlayed(sound);
-            sound.play();
-            setIsPlaying(true);
-        }
-    }
+    // const playSong = (songSrc) => {
+    //     if (songPlayed) {
+    //         // If a song is already loaded
+    //         if (songPlayed.playing()) {
+    //             // Pause if currently playing
+    //             songPlayed.pause();
+    //             setIsPlaying(false);
+    //         } else {
+    //             // Play if paused
+    //             songPlayed.play();
+    //             setIsPlaying(true);
+    //         }
+    //     } else {
+    //         // Load and play a new song if no song is loaded
+    //         const sound = new Howl({
+    //             src: [songSrc],
+    //             html5: true,
+    //         });
+    //         setSongPlayed(sound);
+    //         sound.play();
+    //         setIsPlaying(true);
+    //     }
+    // }
     const updateVolume = (e) => {
         const newVoulume = e.target.value / 100;
         setVolume(newVoulume);
@@ -96,29 +109,39 @@ function LogedInContainer({ children }) {
         }
     }
     useEffect(() => {
-        if (currentSong) {
-            if (songPlayed) {
-                songPlayed.stop(); // Stop the previous song
-                setPlayBackTime(0)
-                setSongBar(0);
-            }
-            const newSong = new Howl({
-                src: [currentSong.track], // Use the source from `currentSong`
-                html5: true,
-                onend: () => setIsPlaying(false),
-                onload: ()=>{
-                    // let time = formatedTime(newSong.duration());
-                    setSongDuration(newSong.duration());
-                    // console.log(time);
-                }
-            });
-            // let time = formatedTime(newSong.duration());
-            // console.log(newSong.duration());
-            // setSongDuration(formatedTime);
-            setSongPlayed(newSong);
-            // newSong.play();
-            setIsPlaying(false);
+        if (songLoading || songError || !currentSong) return;
+        console.log(songPlayed);
+        if (songPlayed) {
+            songPlayed.stop(); // Stop the previous song
+            setPlayBackTime(0)
+            setSongBar(0);
         }
+        const newSong = new Howl({
+            src: [currentSong.track], // Use the source from `currentSong`
+            html5: true,
+            preload: true,
+            onload: () => {
+                // let time = formatedTime(newSong.duration());
+                setSongDuration(newSong.duration());
+                console.log(currentSong.track);
+            },
+            onloaderror: (_, error) => {
+                console.error("Failed to load audio:", error);
+            },
+            onend: () => setIsPlaying(false)
+        });
+        // let time = formatedTime(newSong.duration());
+        // console.log(newSong.duration());
+        // setSongDuration(formatedTime);
+        setSongPlayed(newSong);
+        // newSong.play();
+        setIsPlaying(false);
+        return () => {
+            newSong.stop();
+            newSong.unload();
+        };
+
+
     }, [currentSong]); // Re-run effect whenever `currentSong` changes
 
     useEffect(() => {
@@ -135,7 +158,7 @@ function LogedInContainer({ children }) {
 
         return () => clearInterval(interval); // Cleanup on unmount or when paused
     }, [isPlaying, songPlayed, songDuration]);
-    
+
     const togglePlayPause = () => {
         if (songPlayed) {
             if (songPlayed.playing()) {
@@ -147,12 +170,12 @@ function LogedInContainer({ children }) {
             }
         }
     };
-    const updateSlider = (e)=>{
-        const newBarValue = parseInt(e.target.value,10);
-        const newPlayBackTime = (newBarValue/100) * songDuration;
+    const updateSlider = (e) => {
+        const newBarValue = parseInt(e.target.value, 10);
+        const newPlayBackTime = (newBarValue / 100) * songDuration;
         setPlayBackTime(newPlayBackTime);
         setSongBar(newBarValue);
-        if(songPlayed){
+        if (songPlayed) {
             songPlayed.seek(newPlayBackTime);
             // if(!isPlaying) togglePlayPause();
         }
@@ -189,10 +212,10 @@ function LogedInContainer({ children }) {
         setIsResizing(true);
     };
 
-    const formatedTime = (seconds)=>{
-        const minutes = Math.floor(seconds/60);
-        const sec = Math.floor(seconds%60);
-        return `${minutes}:${sec<10 ? '0':''}${sec}`;
+    const formatedTime = (seconds) => {
+        const minutes = Math.floor(seconds / 60);
+        const sec = Math.floor(seconds % 60);
+        return `${minutes}:${sec < 10 ? '0' : ''}${sec}`;
     }
 
     return (
@@ -312,7 +335,7 @@ function LogedInContainer({ children }) {
 
                 <div className='bg-black h-1/10 flex justify-between text-white px-5 items-center relative w-full z-1'>
                     <div className='flex'>
-                        <div className='w-[50px] h-[50px] rounded-full' onClick={() => { playSong(currentSong.track) }}>
+                        <div className='w-[50px] h-[50px] rounded-full'>
                             <img src={currentSong.thumbnail || ''} alt="error" className='rounded object-cover w-[50px] h-[50px] cursor-pointer' />
                         </div>
                         <div className='pl-4 flex flex-col justify-between'>
@@ -334,16 +357,16 @@ function LogedInContainer({ children }) {
                         <div className='flex '>
                             <span>{formatedTime(playBackTime)}</span>
                             <div>
-                                <input 
-                                type="range"
-                                className='cursor-pointer'
-                                min={0}
-                                max={100}
-                                value={songBar} 
-                                onChange={updateSlider}/>
+                                <input
+                                    type="range"
+                                    className='cursor-pointer'
+                                    min={0}
+                                    max={100}
+                                    value={songBar}
+                                    onChange={updateSlider} />
                             </div>
                             <span>{formatedTime(songDuration)}</span>
-                        </div> 
+                        </div>
                     </div>
                     <div className='flex items-center justify-center'>
                         <div>

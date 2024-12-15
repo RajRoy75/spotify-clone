@@ -18,14 +18,14 @@ function Mymusic() {
     const [songData, setSongData] = useState([]);
     const [songPlayed, setSongPlayed] = useState(null);
     const [isPlaying, setIsPlaying] = useState(false);
-    const {data:currentSong,isLoading:songLoading,isError:songError,refetch:songRefetch} = useCurrentSong();
+    const { data: currentSong, isLoading: songLoading, isError: songError, refetch: songRefetch } = useCurrentSong();
     useEffect(() => {
         const getSong = async () => {
             // const response = await makeAuthenticateGETrequest('/song/get/mysong');
             const response = await fetch('http://localhost:8000/song/get/allsong', {
-                method:'GET',
-                headers:{
-                    "Content-Type" : "application/json"
+                method: 'GET',
+                headers: {
+                    "Content-Type": "application/json"
                 }
             })
             const formatedResponse = await response.json();
@@ -50,22 +50,25 @@ function Mymusic() {
         }
     }, [currentSong]); // Re-run effect whenever `currentSong` changes
 
-    const playSong = (songSrc)=>{
-                if(songPlayed){
-                    songPlayed.stop();
-                }
-                var sound = new Howl({
-                    src: [songSrc],
-                    html5: true
-                  });
-                  setSongPlayed(sound)
-                  sound.play();
-            }
+    const playSong = (songSrc) => {
+        if (songPlayed) {
+            songPlayed.stop();
+        }
+        var sound = new Howl({
+            src: [songSrc],
+            html5: true
+        });
+        setSongPlayed(sound)
+        sound.play();
+    }
 
     return (
-        <LogedInContainer>
-            <SongsList data={songData} playSong={playSong}/>
-        </LogedInContainer>
+        <>
+            <SongsList data={songData} playSong={playSong} />
+        </>
+        // <LogedInContainer>
+
+        // </LogedInContainer>
     )
 }
 

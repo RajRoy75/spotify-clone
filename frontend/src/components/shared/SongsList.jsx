@@ -3,6 +3,7 @@ import React from 'react'
 import useCurrentSong from '../../hooks/useCurrentSong';
 import { useQueryClient } from 'react-query';
 import { Howl } from 'howler';
+import { usePlayer } from '../../hooks/playerProvider';
 
 function SongsList({ data, playSong }) {
     // const { currentSong, setCurrentSong } = useContext(songContext);
@@ -13,6 +14,8 @@ function SongsList({ data, playSong }) {
         queryClient.setQueryData("currentSong",item);
         localStorage.setItem('currentSong', JSON.stringify(item));
     }
+
+
     const getDuration = (url)=>{
         const sound = new Howl({src:url});
         const durationInSeconds = sound.duration();
@@ -48,7 +51,7 @@ function SongsList({ data, playSong }) {
                                 <td className='text-base'>
                                     {getDuration(item.track)}
                                 </td>
-                                {console.log(item.track)}
+                                {/* {console.log(item.track)} */}
                             </tr>
                         )
                     })}

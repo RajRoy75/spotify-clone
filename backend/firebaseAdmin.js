@@ -3,7 +3,7 @@
 // import admin from 'firebase-admin';
 const admin = require('firebase-admin');
 
-const serviceAccount = require('./musicplayground-a682d-firebase-adminsdk-5rzy3-e5254ff56c.json');
+const serviceAccount = require('./musicplayground-a682d-firebase-adminsdk-5rzy3-53d5a4ec9f.json');
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount)
