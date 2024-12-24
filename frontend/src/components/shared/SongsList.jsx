@@ -1,21 +1,19 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 // import songContext from '../../context/SongContext'
 import useCurrentSong from '../../hooks/useCurrentSong';
 import { useQueryClient } from 'react-query';
 import { Howl } from 'howler';
-// import { usePlayer } from '../../hooks/playerProvider';
 
-function SongsList({ data, playSong }) {
-    // const { currentSong, setCurrentSong } = useContext(songContext);
+function SongsList({ data }) {
+
     const {data:currentSong,isLoading:songLoading,isError:songError,refetch:songRefetch} = useCurrentSong();
     // console.log(song);
     const queryClient = useQueryClient();
     const setCurrentSong = (item)=>{
-        queryClient.setQueryData("currentSong",item);
         localStorage.setItem('currentSong', JSON.stringify(item));
+        queryClient.setQueryData("currentSong",item);
         songRefetch();
     }
-
 
     const getDuration = (url)=>{
         const sound = new Howl({src:url});

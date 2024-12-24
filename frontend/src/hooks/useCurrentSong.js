@@ -8,9 +8,14 @@ const useCurrentSong = () => {
             return savedSong ? JSON.parse(savedSong) : null;
         },
         {
-            refetchOnWindowFocus: false
-            // initialData: useCurrentSong(),
+            staleTime: Infinity, // Prevent unnecessary refetches
+            enabled: true, // Ensure query is always active
         }
+        // {
+        //     refetchOnWindowFocus: true,
+        //     staleTime: 0,
+        //     // initialData: useCurrentSong(),
+        // }
     )
     return { data, isLoading, isError, refetch };
 }

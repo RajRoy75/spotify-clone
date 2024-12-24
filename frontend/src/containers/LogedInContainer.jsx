@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import spotify_logo from '../components/shared/spotify_logo_white.svg';
 import { MdHomeFilled, MdKeyboardArrowLeft, MdKeyboardArrowRight, MdLibraryMusic } from "react-icons/md";
 import { VscFolderLibrary } from "react-icons/vsc";
@@ -9,10 +9,9 @@ import { ImVolumeMedium, ImVolumeMute2 } from "react-icons/im";
 import { IoPlaySkipBack, IoPlaySkipForwardSharp, IoPlayCircle, IoPauseCircle } from "react-icons/io5";
 import Playlist from '../components/shared/Playlist';
 import { Link } from 'react-router-dom';
-import { Howl, Howler } from 'howler';
+import { Howl } from 'howler';
 import useUser from '../hooks/useUser';
 import { useQueryClient } from 'react-query';
-import { auth } from '../utils/firebase';
 import { getAuth } from 'firebase/auth';
 import useCurrentSong from '../hooks/useCurrentSong';
 import { usePlayer } from '../hooks/playerProvider';
@@ -22,15 +21,16 @@ import { makeAuthenticateGETrequest } from '../utils/serverHelper';
 function LogedInContainer({ children }) {
     const auth = getAuth();
     const user = auth.currentUser;
-    console.log("user from home page ", user);
+    // console.log("user from home page ", user);
     const { data, isLoading, isError, refetch } = useUser();
-    console.log("data from react-query", data);
+    // console.log("data from react-query", data);
     const { data: currentSong, isLoading: songLoading, isError: songError, refetch: songRefetch } = useCurrentSong();
     const queryClient = useQueryClient();
     const screenW = window.innerWidth;
     const [sidebarWidth, setSidebarWidth] = useState(400);
     const [isResizing, setIsResizing] = useState(false);
     const [screenSizing, setScreenSizing] = useState(screenW - sidebarWidth);
+    console.log(currentSong);
     // const [songData, setSongData] = useState([]);
     // const [songPlayed, setSongPlayed] = useState(null);
     // const [isPlaying, setIsPlaying] = useState(false);
@@ -52,43 +52,11 @@ function LogedInContainer({ children }) {
         songBar,
         setSongBar,
     } = usePlayer();
-    console.log(songPlayed);
-    // console.log(songBar);
-
     const signOutUser = async () => {
         await auth.signOut().then(() => {
             queryClient.setQueryData('User', null);
         })
     }
-
-    // const getSongDuration = ()=>{
-    //     if
-    // }
-
-
-    // const playSong = (songSrc) => {
-    //     if (songPlayed) {
-    //         // If a song is already loaded
-    //         if (songPlayed.playing()) {
-    //             // Pause if currently playing
-    //             songPlayed.pause();
-    //             setIsPlaying(false);
-    //         } else {
-    //             // Play if paused
-    //             songPlayed.play();
-    //             setIsPlaying(true);
-    //         }
-    //     } else {
-    //         // Load and play a new song if no song is loaded
-    //         const sound = new Howl({
-    //             src: [songSrc],
-    //             html5: true,
-    //         });
-    //         setSongPlayed(sound);
-    //         sound.play();
-    //         setIsPlaying(true);
-    //     }
-    // }
     const updateVolume = (e) => {
         const newVoulume = e.target.value / 100;
         setVolume(newVoulume);
@@ -119,7 +87,7 @@ function LogedInContainer({ children }) {
             setSongBar(0);
         }
         const newSong = new Howl({
-            src: [currentSong.track], // Use the source from `currentSong`
+            src: [currentSong.track], 
             html5: true,
             preload: true,
             onload: () => {
@@ -144,32 +112,40 @@ function LogedInContainer({ children }) {
         };
 
 
-    }, [currentSong]); // Re-run effect whenever `currentSong` changes
+    }, [currentSong]);
 
     useEffect(() => {
         let interval;
         if (isPlaying && songPlayed) {
             interval = setInterval(() => {
                 if (songPlayed.playing()) {
-                    const currentTime = songPlayed.seek(); // Get current playback time
+                    const currentTime = songPlayed.seek();
                     setPlayBackTime(currentTime);
-                    setSongBar((currentTime / songDuration) * 100); // Calculate progress percentage
+                    setSongBar((currentTime / songDuration) * 100);
                 }
-            }, 500); // Update every second
+            }, 500); 
         }
 
-        return () => clearInterval(interval); // Cleanup on unmount or when paused
+        return () => clearInterval(interval); 
     }, [isPlaying, songPlayed, songDuration]);
 
     useEffect(() => {
         const getPlaylist = async () => {
-            // const currentUser = auth.currentUser;
-            const uid = user.uid;
-            const response = await makeAuthenticateGETrequest(`/playlist/get/artist/${uid}`);
-            setPlaylist(response.data)
+            try {
+                const currentUser = await auth.currentUser;
+                if (!currentUser) {
+                    console.warn('No user is logged in.');
+                    return;
+                }
+                const uid = currentUser.uid;
+                const response = await makeAuthenticateGETrequest(`/playlist/get/artist/${uid}`);
+                setPlaylist(response.data);
+            } catch (error) {
+                console.error('Error fetching playlist:', error);
+            }
         }
         getPlaylist();
-    }, [])
+    }, [auth])
     // console.log(playlist);
 
     const togglePlayPause = () => {
@@ -274,7 +250,7 @@ function LogedInContainer({ children }) {
                             </div>
                             <div className='flex items-center justify-between'>
                                 <span className='p-2 bg-black items-center rounded-full cursor-pointer mx-2'>
-                                    <Link to={'/create-plyalist'}>
+                                    <Link to={'/create-playlist'}>
                                         <AiOutlinePlus size={30} />
                                     </Link>
                                 </span>
@@ -285,6 +261,7 @@ function LogedInContainer({ children }) {
                         </div>
                         <div className='playlist mt-6 '>
                             {playlist.length > 0 ? (
+                                // <PlaylistCardView title={'playlist'} playlisData={playlist}/>
                                 playlist.map((item, index) => {
                                     return (
                                         <Playlist
