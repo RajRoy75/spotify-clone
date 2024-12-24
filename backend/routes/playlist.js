@@ -5,13 +5,14 @@ const User = require('../Models/User');
 const Song = require('../Models/Song');
 const route = express.Router();
 
-route.post('/create', passport.authenticate('jwt', {session: false}), async(req,res)=>{
-    const currentUser = req.user;
-    const {name, thumbnail, songs} = req.body;
-    if(!name || !thumbnail || !songs){
+route.post('/create', async(req,res)=>{
+    // const currentUser = req.user;
+    const {name, thumbnail, uid, songs} = req.body;
+    if(!name || !thumbnail || !songs || !uid){
         res.status(301).json({err:'require suficient information'});
     }
-    const playlistData = {name, thumbnail, songs, owner:currentUser._id, collaborators:[]};
+    const owner = await User.findOne({uid},'_id');
+    const playlistData = {name, thumbnail, songs, owner};
     const playlist = await Playlist.create(playlistData);
     res.status(200).json({data: playlist});
 
@@ -24,10 +25,10 @@ route.get('/get/playlist/:playlistId', passport.authenticate('jwt', {session: fa
     }
     res.status(200).json({data: playlist});
 });
-route.get('/get/artist/:artistId', passport.authenticate('jwt', {session: false}), async(req,res)=>{
-    const artistId = req.params.artistId;
-    const artist = await User.findOne({_id:artistId});
-    if(!artist){
+route.get('/get/artist/:artistUid', async(req,res)=>{
+    const uid = req.params.artistUid;
+    const artistId = await User.findOne({uid}, '_id');
+    if(!artistId){
         res.status(301).json({err: "Artist doesn't exist"})
     }
     const playlist = await Playlist.find({owner:artistId});

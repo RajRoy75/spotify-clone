@@ -3,7 +3,7 @@ import React from 'react'
 import useCurrentSong from '../../hooks/useCurrentSong';
 import { useQueryClient } from 'react-query';
 import { Howl } from 'howler';
-import { usePlayer } from '../../hooks/playerProvider';
+// import { usePlayer } from '../../hooks/playerProvider';
 
 function SongsList({ data, playSong }) {
     // const { currentSong, setCurrentSong } = useContext(songContext);
@@ -13,6 +13,7 @@ function SongsList({ data, playSong }) {
     const setCurrentSong = (item)=>{
         queryClient.setQueryData("currentSong",item);
         localStorage.setItem('currentSong', JSON.stringify(item));
+        songRefetch();
     }
 
 

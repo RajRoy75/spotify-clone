@@ -30,7 +30,7 @@ const CloudinaryUpload = ({setUrl, fileName}) => {
             className="bg-white text-black  rounded-full p-4 font-semibold"
             onClick={uploadImageWidget}
         >
-            Select Track
+            Select File
         </button>
     );
 };

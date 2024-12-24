@@ -13,7 +13,7 @@ export const makeUnAuthenticatePOSTrequest = async (route, body) =>{
 }
 
 export const makeAuthenticatePOSTrequest = async (route, body) =>{
-    const token = getToken();
+    // const token = getToken();
     const response = await fetch(backendUrl + route, {
         method:'POST',
         headers:{
@@ -25,12 +25,12 @@ export const makeAuthenticatePOSTrequest = async (route, body) =>{
     return formatedResponse;
 }
 export const makeAuthenticateGETrequest = async (route) =>{
-    const token = getToken();
+    // const token = getToken();
     const response = await fetch(backendUrl + route, {
         method:'GET',
         headers:{
-            "Content-Type" : "application/json",
-            Authorization: `Bearer ${token}`,
+            "Content-Type" : "application/json"
+
         }
     })
     const formatedResponse = await response.json();

@@ -15,6 +15,7 @@ import { ReactQueryDevtools } from "react-query/devtools";
 import { getToken } from './utils/serverHelper';
 import { PlayerProvider } from './hooks/playerProvider';
 import LogedInContainer from './containers/LogedInContainer';
+import CreatePlaylist from './pages/CreatePlaylist';
 
 function App() {
 
@@ -52,6 +53,7 @@ function App() {
                 <Route path='/' element={<LogedInHome />} />
                 <Route path='/upload' element={<UploadSong />} />
                 <Route path='/mymusic' element={<Mymusic />} />
+                <Route path='/create-plyalist' element={<CreatePlaylist />} />
                 <Route path='*' element={<Navigate to="/" />} />
               </Routes>
             </LogedInContainer>} />

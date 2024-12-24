@@ -16,6 +16,7 @@ import { auth } from '../utils/firebase';
 import { getAuth } from 'firebase/auth';
 import useCurrentSong from '../hooks/useCurrentSong';
 import { usePlayer } from '../hooks/playerProvider';
+import { makeAuthenticateGETrequest } from '../utils/serverHelper';
 
 
 function LogedInContainer({ children }) {
@@ -39,6 +40,7 @@ function LogedInContainer({ children }) {
     // const [playBackTime, setPlayBackTime] = useState('0:00');
     // const [songBar, setSongBar] = useState(0);
     // const[currentDuration, setCurrentDuration] = useState(0);
+    const [playlist, setPlaylist] = useState([]);
 
     const {
         songPlayed,
@@ -159,6 +161,17 @@ function LogedInContainer({ children }) {
         return () => clearInterval(interval); // Cleanup on unmount or when paused
     }, [isPlaying, songPlayed, songDuration]);
 
+    useEffect(() => {
+        const getPlaylist = async () => {
+            // const currentUser = auth.currentUser;
+            const uid = user.uid;
+            const response = await makeAuthenticateGETrequest(`/playlist/get/artist/${uid}`);
+            setPlaylist(response.data)
+        }
+        getPlaylist();
+    }, [])
+    // console.log(playlist);
+
     const togglePlayPause = () => {
         if (songPlayed) {
             if (songPlayed.playing()) {
@@ -259,9 +272,11 @@ function LogedInContainer({ children }) {
                                     <h2 className='px-3 text-xl font-poppins font-normal'>Your Library</h2>
                                 </span>
                             </div>
-                            <div className='flex items-center '>
-                                <span className='p-2 bg-black items-center rounded-full cursor-pointer'>
-                                    <AiOutlinePlus size={30} />
+                            <div className='flex items-center justify-between'>
+                                <span className='p-2 bg-black items-center rounded-full cursor-pointer mx-2'>
+                                    <Link to={'/create-plyalist'}>
+                                        <AiOutlinePlus size={30} />
+                                    </Link>
                                 </span>
                                 <span className='p-2 bg-black items-center rounded-full mx-2 cursor-pointer'>
                                     <IoIosArrowRoundForward size={30} />
@@ -269,12 +284,21 @@ function LogedInContainer({ children }) {
                             </div>
                         </div>
                         <div className='playlist mt-6 '>
-                            <Playlist
-                                playlistName={'First Playlist'}
-                                playlistOwner={'RajRoy'} />
-                            <Playlist playlistName={'First Playlist'} playlistOwner={'RajRoy'} />
-                            <Playlist playlistName={'First Playlist'} playlistOwner={'RajRoy'} />
-                            {/* <Playlist playlistName={'First Playlist'} playlistOwner={'RajRoy'} /> */}
+                            {playlist.length > 0 ? (
+                                playlist.map((item, index) => {
+                                    return (
+                                        <Playlist
+                                            key={index}
+                                            playlistName={item.name}
+                                            img={item.thumbnail}
+                                        />
+                                    )
+                                })
+
+                            ) : (
+                                <p>Create Playlist</p>
+                            )}
+
                         </div>
                     </div>
 
