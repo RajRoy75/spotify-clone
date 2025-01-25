@@ -87,7 +87,7 @@ function LogedInContainer({ children }) {
             setSongBar(0);
         }
         const newSong = new Howl({
-            src: [currentSong.track], 
+            src: [currentSong.track],
             html5: true,
             preload: true,
             onload: () => {
@@ -123,10 +123,10 @@ function LogedInContainer({ children }) {
                     setPlayBackTime(currentTime);
                     setSongBar((currentTime / songDuration) * 100);
                 }
-            }, 500); 
+            }, 500);
         }
 
-        return () => clearInterval(interval); 
+        return () => clearInterval(interval);
     }, [isPlaying, songPlayed, songDuration]);
 
     useEffect(() => {
@@ -264,11 +264,16 @@ function LogedInContainer({ children }) {
                                 // <PlaylistCardView title={'playlist'} playlisData={playlist}/>
                                 playlist.map((item, index) => {
                                     return (
-                                        <Playlist
-                                            key={index}
-                                            playlistName={item.name}
-                                            img={item.thumbnail}
-                                        />
+                                        <>
+                                            <Link to={`/playlist/${item._id}`}>
+                                                <Playlist
+                                                    key={index}
+                                                    playlistName={item.name}
+                                                    img={item.thumbnail}
+                                                    playlistOwner={item.owner.firstName + " " + item.owner.lastName}
+                                                />
+                                            </Link>
+                                        </>
                                     )
                                 })
 

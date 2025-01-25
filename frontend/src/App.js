@@ -11,6 +11,7 @@ import { ReactQueryDevtools } from "react-query/devtools";
 import { getToken } from './utils/serverHelper';
 import { PlayerProvider } from './hooks/playerProvider';
 import CreatePlaylist from './pages/CreatePlaylist';
+import Playlist from './pages/Playlist';
 
 function App() {
 
@@ -38,9 +39,10 @@ function App() {
             <Route path='/upload' element={<UploadSong />} />
             <Route path='/mymusic' element={<Mymusic />} />
             <Route path='/create-playlist' element={<CreatePlaylist />} />
-            <Route path='*' element={<Navigate to="/" />} />
+            <Route path='/playlist/:playlistId' element={<Playlist/>} />
             <Route path='/login' element={<Login />} />
             <Route path='/signup' element={<SignUp />} />
+            <Route path='*' element={<Navigate to="/" />} />
           </Routes>
         </PlayerProvider>
         <ReactQueryDevtools initialIsOpen={false} />

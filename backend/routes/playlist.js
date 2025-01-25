@@ -17,9 +17,12 @@ route.post('/create', async(req,res)=>{
     res.status(200).json({data: playlist});
 
 });
-route.get('/get/playlist/:playlistId', passport.authenticate('jwt', {session: false}), async(req,res)=>{
+route.get('/get/playlist/:playlistId', async(req,res)=>{
     const playlistId = req.params.playlistId;
-    const playlist = await Playlist.findOne({_id: playlistId});
+    const playlist = await Playlist.findOne({_id: playlistId}).populate([
+        { path: 'songs', populate: { path: 'artist'} },
+        { path: 'owner'},
+      ]);
     if(!playlist){
         res.status(301).json({err: "Invalid playlist Id"});
     }
@@ -31,15 +34,15 @@ route.get('/get/artist/:artistUid', async(req,res)=>{
     if(!artistId){
         res.status(301).json({err: "Artist doesn't exist"})
     }
-    const playlist = await Playlist.find({owner:artistId});
+    const playlist = await Playlist.find({owner:artistId}).populate('owner');
     if(!playlist){
         res.status(301).json({err: "Invalid playlist Id"});
     }
     res.status(200).json({data: playlist});
 });
-route.post('/add/song', passport.authenticate('jwt', {session: false}), async(req,res)=>{
-    const currentUser  = req.user;
-    const {playlistId, songId} = req.body;
+route.post('/add/song', async(req,res)=>{
+    const {playlistId, songId,uid} = req.body;
+    const currentUser  = await User.findOne({uid:uid});
     const playlist = await Playlist.findOne({_id: playlistId});
     if(!playlist){
         res.status(301).json({err: "Playlist not exist"});
