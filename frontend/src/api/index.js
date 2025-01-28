@@ -1,4 +1,5 @@
 import { auth } from "../utils/firebase";
+import { makeAuthenticateGETrequest } from "../utils/serverHelper";
 
 export const getUserDetail = () => {
     return new Promise((resolve, reject) => {
@@ -28,4 +29,21 @@ export const getUserDetail = () => {
             unsubscribe();
         })
     })
+}
+
+export const getUserPlaylist = async() => {
+    try {
+        const currentUser = auth.currentUser;
+        const id = currentUser?.uid;
+
+        if (!id) {
+            throw new Error("User is not authenticated");
+        }
+
+        const response = await makeAuthenticateGETrequest(`/playlist/get/artist/${id}`);
+        return response;
+    } catch (error) {
+        console.error("Error fetching user playlist:", error);
+        throw error; // Propagate the error for React Query to handle
+    }
 }

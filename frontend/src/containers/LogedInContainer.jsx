@@ -16,6 +16,7 @@ import { getAuth } from 'firebase/auth';
 import useCurrentSong from '../hooks/useCurrentSong';
 import { usePlayer } from '../hooks/playerProvider';
 import { makeAuthenticateGETrequest } from '../utils/serverHelper';
+import useUserPlaylist from '../hooks/useUserPlalylist';
 
 
 function LogedInContainer({ children }) {
@@ -23,6 +24,8 @@ function LogedInContainer({ children }) {
     const user = auth.currentUser;
     // console.log("user from home page ", user);
     const { data, isLoading, isError, refetch } = useUser();
+    const { data: userPlaylist, isLoading: playlistLoading, isError: playlistError, refetch: playlistRefetch} = useUserPlaylist();
+    // console.log("data from react-query", userPlaylist);
     // console.log("data from react-query", data);
     const { data: currentSong, isLoading: songLoading, isError: songError, refetch: songRefetch } = useCurrentSong();
     const queryClient = useQueryClient();
@@ -30,7 +33,7 @@ function LogedInContainer({ children }) {
     const [sidebarWidth, setSidebarWidth] = useState(400);
     const [isResizing, setIsResizing] = useState(false);
     const [screenSizing, setScreenSizing] = useState(screenW - sidebarWidth);
-    console.log(currentSong);
+    // console.log(currentSong);
     // const [songData, setSongData] = useState([]);
     // const [songPlayed, setSongPlayed] = useState(null);
     // const [isPlaying, setIsPlaying] = useState(false);
@@ -260,9 +263,9 @@ function LogedInContainer({ children }) {
                             </div>
                         </div>
                         <div className='playlist mt-6 '>
-                            {playlist.length > 0 ? (
+                            {userPlaylist?.data?.length > 0 ? (
                                 // <PlaylistCardView title={'playlist'} playlisData={playlist}/>
-                                playlist.map((item, index) => {
+                                userPlaylist.data.map((item, index) => {
                                     return (
                                         <>
                                             <Link to={`/playlist/${item._id}`}>
