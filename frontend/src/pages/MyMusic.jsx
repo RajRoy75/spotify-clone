@@ -25,9 +25,7 @@ function Mymusic() {
 
     return (
         <>
-        <LogedInContainer>
             <SongsList data={songData} />
-        </LogedInContainer>
         </>
     )
 }

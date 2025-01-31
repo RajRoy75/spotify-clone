@@ -12,6 +12,7 @@ import { getToken } from './utils/serverHelper';
 import { PlayerProvider } from './hooks/playerProvider';
 import CreatePlaylist from './pages/CreatePlaylist';
 import Playlist from './pages/Playlist';
+import LogedInContainer from './containers/LogedInContainer';
 
 function App() {
 
@@ -32,7 +33,7 @@ function App() {
 
   return (
     <div className='App'>
-      <QueryClientProvider client={queryClient}>
+	  {/* <QueryClientProvider client={queryClient}>
         <PlayerProvider>
           <Routes>
             <Route path='/' element={<LogedInHome />} />
@@ -46,7 +47,24 @@ function App() {
           </Routes>
         </PlayerProvider>
         <ReactQueryDevtools initialIsOpen={false} />
-      </QueryClientProvider>
+      </QueryClientProvider>*/}
+	 <QueryClientProvider client={queryClient}>
+        <PlayerProvider>
+          <Routes>
+            <Route element={<LogedInContainer />}>
+              <Route index path='/' element={<LogedInHome />} />
+              <Route path='/upload' element={<UploadSong />} />
+              <Route path='/mymusic' element={<Mymusic />} />
+              <Route path='/create-playlist' element={<CreatePlaylist />} />
+              <Route path='/playlist/:playlistId' element={<Playlist />} /> 
+            </Route>
+	  <Route path='/login' element={<Login />} />
+	  <Route path='/signup' element={<SignUp />} />
+	  <Route path='*' element={<Navigate to="/" />} />
+          </Routes>
+        </PlayerProvider>
+        <ReactQueryDevtools initialIsOpen={false} />
+      </QueryClientProvider> 
     </div>
   );
 }

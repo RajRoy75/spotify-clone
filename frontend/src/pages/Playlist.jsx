@@ -23,10 +23,7 @@ function Playlist() {
         }, [playlistId])
   return (
     <>
-        <LogedInContainer>
             <SongsList data={songData} />
-        </LogedInContainer>
-        {console.log(songData)}
         </>
   )
 }

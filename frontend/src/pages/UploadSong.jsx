@@ -29,7 +29,7 @@ function UploadSong() {
     }
     return (
         <>
-            <LogedInContainer>
+            
                 <div className='mb-4 '>
                     <h2 className='text-white font-bold text-2xl my-2'>Upload your song</h2>
                     <div className='w-4/5 flex justify-between items-center space-x-8 '>
@@ -60,7 +60,6 @@ function UploadSong() {
                     </div>
 
                 </div>
-            </LogedInContainer>
         </>
     )
 }

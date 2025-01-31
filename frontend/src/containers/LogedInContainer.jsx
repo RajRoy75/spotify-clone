@@ -8,7 +8,7 @@ import { IoIosArrowRoundForward } from "react-icons/io";
 import { ImVolumeMedium, ImVolumeMute2 } from "react-icons/im";
 import { IoPlaySkipBack, IoPlaySkipForwardSharp, IoPlayCircle, IoPauseCircle } from "react-icons/io5";
 import Playlist from '../components/shared/Playlist';
-import { Link } from 'react-router-dom';
+import { Link,Outlet } from 'react-router-dom';
 import { Howl } from 'howler';
 import useUser from '../hooks/useUser';
 import { useQueryClient } from 'react-query';
@@ -27,7 +27,7 @@ function LogedInContainer({ children }) {
     const { data: userPlaylist, isLoading: playlistLoading, isError: playlistError, refetch: playlistRefetch} = useUserPlaylist();
     // console.log("data from react-query", userPlaylist);
     // console.log("data from react-query", data);
-    const { data: currentSong, isLoading: songLoading, isError: songError, refetch: songRefetch } = useCurrentSong();
+    //const { data: currentSong, isLoading: songLoading, isError: songError, refetch: songRefetch } = useCurrentSong();
     const queryClient = useQueryClient();
     const screenW = window.innerWidth;
     const [sidebarWidth, setSidebarWidth] = useState(400);
@@ -46,6 +46,7 @@ function LogedInContainer({ children }) {
     const [playlist, setPlaylist] = useState([]);
 
     const {
+	currentSong,
         songPlayed,
         setSongPlayed,
         isPlaying,
@@ -55,6 +56,7 @@ function LogedInContainer({ children }) {
         songBar,
         setSongBar,
     } = usePlayer();
+	console.log(currentSong);
     const signOutUser = async () => {
         await auth.signOut().then(() => {
             queryClient.setQueryData('User', null);
@@ -82,7 +84,7 @@ function LogedInContainer({ children }) {
         }
     }
     useEffect(() => {
-        if (songLoading || songError || !currentSong) return;
+        if (!currentSong) return;
         console.log(songPlayed);
         if (songPlayed) {
             songPlayed.stop(); // Stop the previous song
@@ -96,7 +98,7 @@ function LogedInContainer({ children }) {
             onload: () => {
                 // let time = formatedTime(newSong.duration());
                 setSongDuration(newSong.duration());
-                console.log(currentSong.track);
+                //console.log(currentSong.track);
             },
             onloaderror: (_, error) => {
                 console.error("Failed to load audio:", error);
@@ -212,6 +214,7 @@ function LogedInContainer({ children }) {
 
     return (
         <div className='h-screen w-full'>
+
             {/* ${currentSong ? "h-9/10" : "h-full"} */}
             <div className={`${currentSong ? "h-9/10" : "h-full"} flex w-full`}>
                 <div
@@ -336,6 +339,7 @@ function LogedInContainer({ children }) {
 
                     <div className='mb-4 '>
                         {children}
+	    		<Outlet />
                     </div>
                 </div>
             </div>
@@ -348,7 +352,7 @@ function LogedInContainer({ children }) {
                             <img src={currentSong.thumbnail || ''} alt="error" className='rounded object-cover w-[50px] h-[50px] cursor-pointer' />
                         </div>
                         <div className='pl-4 flex flex-col justify-between'>
-                            <span className='font-semibold cursor-pointer'>{songLoading ? 'Loading...' : currentSong.name}</span>
+                           <span className='font-normal text-lg text-white cursor-pointer'>{currentSong.name}</span> 
                             <span className='font-normal text-xs text-gray-300 cursor-pointer' >{currentSong.artist.firstName + " " + currentSong.artist.lastName}</span>
 
                         </div>
@@ -398,6 +402,7 @@ function LogedInContainer({ children }) {
                 </div>
 
             }
+	    
         </div>
     )
 }

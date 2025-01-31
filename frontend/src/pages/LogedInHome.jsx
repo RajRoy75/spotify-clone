@@ -40,7 +40,6 @@ function LogedInHome() {
   ]
 
   return (
-    <LogedInContainer>
 
 
 
@@ -76,7 +75,6 @@ function LogedInHome() {
         <PlaylistCardView title={"Hindi Playlist"} playlisData={playlistData} />
         <PlaylistCardView title={"English Playlist"} playlisData={playlistData} />
       </div>
-    </LogedInContainer>
 
   )
 }
