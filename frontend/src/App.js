@@ -48,23 +48,23 @@ function App() {
         </PlayerProvider>
         <ReactQueryDevtools initialIsOpen={false} />
       </QueryClientProvider>*/}
-	 <QueryClientProvider client={queryClient}>
-        <PlayerProvider>
-          <Routes>
-            <Route element={<LogedInContainer />}>
-              <Route index path='/' element={<LogedInHome />} />
-              <Route path='/upload' element={<UploadSong />} />
-              <Route path='/mymusic' element={<Mymusic />} />
-              <Route path='/create-playlist' element={<CreatePlaylist />} />
-              <Route path='/playlist/:playlistId' element={<Playlist />} /> 
-            </Route>
+	  <QueryClientProvider client={queryClient}>
+	  <PlayerProvider>
+	  <Routes>
+	  <Route element={<LogedInContainer />}>
+	  <Route index path='/' element={<LogedInHome />} />
+	  <Route path='/upload' element={<UploadSong />} />
+	  <Route path='/mymusic' element={<Mymusic />} />
+	  <Route path='/create-playlist' element={<CreatePlaylist />} />
+	  <Route path='/playlist/:playlistId' element={<Playlist />} />
+	  </Route>
 	  <Route path='/login' element={<Login />} />
 	  <Route path='/signup' element={<SignUp />} />
 	  <Route path='*' element={<Navigate to="/" />} />
-          </Routes>
-        </PlayerProvider>
-        <ReactQueryDevtools initialIsOpen={false} />
-      </QueryClientProvider> 
+	  </Routes>
+	  <ReactQueryDevtools initialIsOpen={false} />
+	  </PlayerProvider>
+	  </QueryClientProvider> 
     </div>
   );
 }

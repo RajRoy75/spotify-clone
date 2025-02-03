@@ -3,18 +3,26 @@ import React, { useEffect } from 'react'
 import useCurrentSong from '../../hooks/useCurrentSong';
 import { useQueryClient } from 'react-query';
 import { Howl } from 'howler';
+import { usePlayer } from '../../hooks/playerProvider';
 
 function SongsList({ data }) {
 
-    const {data:currentSong,isLoading:songLoading,isError:songError,refetch:songRefetch} = useCurrentSong();
+//    const {data:currentSong,isLoading:songLoading,isError:songError,refetch:songRefetch} = useCurrentSong();
     // console.log(song);
-    const queryClient = useQueryClient();
-    const setCurrentSong = (item)=>{
-        localStorage.setItem('currentSong', JSON.stringify(item));
-        queryClient.setQueryData("currentSong",item);
-        songRefetch();
-    }
+ //   const queryClient = useQueryClient();
+ //   const setCurrentSong = (item)=>{
+ //       localStorage.setItem('currentSong', JSON.stringify(item));
+ //       queryClient.setQueryData("currentSong",item);
+ //       songRefetch();
+ //   }
 
+	const {
+	currentSong,
+	setCurrentSong,
+    } = usePlayer();
+	const setSong= (item)=>{
+	   setCurrentSong(item);
+    }
     const getDuration = (url)=>{
         const sound = new Howl({src:url});
         const durationInSeconds = sound.duration();
@@ -38,7 +46,7 @@ function SongsList({ data }) {
                 <tbody className='text-white cursor-pointer'>
                     {data.map((item,index) => {
                         return (
-                            <tr className='bg-gradient-to-r from-violet-500 to-fuchsia-500' onClick={() => { setCurrentSong(item) }} key={index}>
+                            <tr className='bg-gradient-to-r from-violet-500 to-fuchsia-500' onClick={() => { setSong(item) }} key={index}>
                                 <td className='flex flex-row items-center ml-2 p-2'>
                                     <div className='rounded w-[40px] h-[40px]' style={{ backgroundImage: `url('${item.thumbnail}')`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
                                     </div>

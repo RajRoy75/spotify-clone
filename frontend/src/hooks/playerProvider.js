@@ -6,44 +6,48 @@ const PlayerContext = createContext();
 export const usePlayer = () => useContext(PlayerContext);
 
 export const PlayerProvider = ({ children }) => {
-    const queryClient = useQueryClient();
-    const [songPlayed, setSongPlayed] = useState(null);
-    const [isPlaying, setIsPlaying] = useState(false);
-    const [playBackTime, setPlayBackTime] = useState(0);
-    const [songBar, setSongBar] = useState(0);
-//    const currentSong = queryClient.getQueryData('currentSong');
+    //const queryClient = useQueryClient();
+	const [songPlayed, setSongPlayed] = useState(null);
+	const [isPlaying, setIsPlaying] = useState(false);
+	const [playBackTime, setPlayBackTime] = useState(0);
+	const [songBar, setSongBar] = useState(0);
+	const[currentSong,setCurrentSong] = useState(null);
 
-	 const { data: currentSong } = useQuery('currentSong', () => 
-        queryClient.getQueryData('currentSong'), 
-        {
-            staleTime: Infinity,
-            initialData: null
-        }
-    );
+	//    const currentSong = queryClient.getQueryData('currentSong');
 
-    // Reset player state when song changes
-    useEffect(() => {
-        if(currentSong) {
-            setIsPlaying(false);
-            setPlayBackTime(0);
-            setSongBar(0);
-        }
-    }, [currentSong]);
-    return (
-        <PlayerContext.Provider
-            value={{
+	//	const { data: currentSong } = useQuery('currentSong', () => 
+	//		queryClient.getQueryData('currentSong'), 
+//		{
+//			staleTime: 0,
+//			initialData: null
+//		}
+//	);
+
+	// Reset player state when song changes
+	// useEffect(() => {
+	//     if(currentSong) {
+	//         setIsPlaying(false);
+	//         setPlayBackTime(0);
+	//         setSongBar(0);
+	//     }
+	// }, [currentSong]);
+
+	return (
+		<PlayerContext.Provider
+		value={{
 		currentSong,
-                songPlayed,
-                setSongPlayed,
-                isPlaying,
-                setIsPlaying,
-                playBackTime,
-                setPlayBackTime,
-                songBar,
-                setSongBar,
-            }}
-        >
-            {children}
-        </PlayerContext.Provider>
-    );
+		setCurrentSong,
+    songPlayed,
+    setSongPlayed,
+    isPlaying,
+    setIsPlaying,
+    playBackTime,
+    setPlayBackTime,
+    songBar,
+    setSongBar,
+		}}
+		>
+		{children}
+		</PlayerContext.Provider>
+	);
 };

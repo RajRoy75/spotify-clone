@@ -19,7 +19,7 @@ import { makeAuthenticateGETrequest } from '../utils/serverHelper';
 import useUserPlaylist from '../hooks/useUserPlalylist';
 
 
-function LogedInContainer({ children }) {
+function LogedInContainer() {
     const auth = getAuth();
     const user = auth.currentUser;
     // console.log("user from home page ", user);
@@ -45,17 +45,18 @@ function LogedInContainer({ children }) {
     // const[currentDuration, setCurrentDuration] = useState(0);
     const [playlist, setPlaylist] = useState([]);
 
-    const {
-	currentSong,
-        songPlayed,
-        setSongPlayed,
-        isPlaying,
-        setIsPlaying,
-        playBackTime,
-        setPlayBackTime,
-        songBar,
-        setSongBar,
-    } = usePlayer();
+  const {
+    currentSong,
+    setCurrentSong,
+    songPlayed,
+    setSongPlayed,
+    isPlaying,
+    setIsPlaying,
+    playBackTime,
+    setPlayBackTime,
+    songBar,
+    setSongBar,
+  } = usePlayer();
 	console.log(currentSong);
     const signOutUser = async () => {
         await auth.signOut().then(() => {
@@ -88,6 +89,7 @@ function LogedInContainer({ children }) {
         console.log(songPlayed);
         if (songPlayed) {
             songPlayed.stop(); // Stop the previous song
+		songPlayed.unload();
             setPlayBackTime(0)
             setSongBar(0);
         }
@@ -268,12 +270,12 @@ function LogedInContainer({ children }) {
                         <div className='playlist mt-6 '>
                             {userPlaylist?.data?.length > 0 ? (
                                 // <PlaylistCardView title={'playlist'} playlisData={playlist}/>
-                                userPlaylist.data.map((item, index) => {
+                                userPlaylist.data.map((item) => {
                                     return (
                                         <>
-                                            <Link to={`/playlist/${item._id}`}>
+                                            <Link to={`/playlist/${item._id}`} key={item._id}>
                                                 <Playlist
-                                                    key={index}
+                                                    key={item._id}
                                                     playlistName={item.name}
                                                     img={item.thumbnail}
                                                     playlistOwner={item.owner.firstName + " " + item.owner.lastName}
@@ -338,7 +340,6 @@ function LogedInContainer({ children }) {
                     {/* main content */}
 
                     <div className='mb-4 '>
-                        {children}
 	    		<Outlet />
                     </div>
                 </div>
