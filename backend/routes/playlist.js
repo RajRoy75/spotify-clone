@@ -59,4 +59,70 @@ route.post('/add/song', async(req,res)=>{
     return res.status(200).json({data: playlist});
 })
 
+route.post('/remove/song', async(req,res)=>{
+const { playlistId, songId, uid } = req.body;
+
+  try {
+    // Find the current user
+    const currentUser = await User.findOne({ uid: uid });
+    if (!currentUser) {
+      return res.status(404).json({ err: "User not found" });
+    }
+
+    // Find the playlist
+    const playlist = await Playlist.findOne({ _id: playlistId });
+    if (!playlist) {
+      return res.status(404).json({ err: "Playlist does not exist" });
+    }
+
+    // Check if user is the owner or a collaborator
+    if (!playlist.owner.equals(currentUser._id) && !playlist.collaborators.includes(currentUser._id)) {
+      return res.status(403).json({ err: "Not allowed" });
+    }
+
+    // Check if the song exists
+    const song = await Song.findOne({ _id: songId });
+    if (!song) {
+      return res.status(404).json({ err: "Song does not exist" });
+    }
+
+    // Remove the song if it exists in the playlist
+    if (!playlist.songs.includes(songId)) {
+      return res.status(400).json({ err: "Song not in playlist" });
+    }
+
+    // Remove the song using $pull
+    await Playlist.updateOne(
+      { _id: playlistId },
+      { $pull: { songs: songId } }
+    );
+    return res.status(200).json({ message: "Song removed successfully" });
+    
+  } catch (error) {
+    console.error('Error:', error);
+    return res.status(500).json({ err: "Internal server error" });
+  }    
+})
+
+
+route.get('/check-ownership', async(req,res)=>{
+  const {playlistId,uid} = req.query;
+  try {
+    const artistId = await User.findOne({uid}, '_id');
+    const playlistOwner = await Playlist.findOne({_id:playlistId},'owner');
+
+    if(!playlistOwner){
+      res.status(404).json({message:'Playlist not found'});
+    }
+
+    const isOwner = playlistOwner.owner.toString() === artistId._id.toString();
+    res.status(200).json({isOwner});
+
+  } catch (error) {
+    console.error('error : ',error);
+    res.status(500).json({message:'Internal server error'});
+  }
+
+})
+
 module.exports = route;
