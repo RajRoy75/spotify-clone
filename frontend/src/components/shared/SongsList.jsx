@@ -1,5 +1,4 @@
 import React, { useEffect } from 'react'
-// import songContext from '../../context/SongContext'
 import useCurrentSong from '../../hooks/useCurrentSong';
 import { useQueryClient } from 'react-query';
 import { Howl } from 'howler';
@@ -7,16 +6,6 @@ import { usePlayer } from '../../hooks/playerProvider';
 import OptionMenu from './OptionMenu.js';
 
 function SongsList({ data }) {
-
-
-  //    const {data:currentSong,isLoading:songLoading,isError:songError,refetch:songRefetch} = useCurrentSong();
-  // console.log(song);
-  //   const queryClient = useQueryClient();
-  //   const setCurrentSong = (item)=>{
-  //       localStorage.setItem('currentSong', JSON.stringify(item));
-  //       queryClient.setQueryData("currentSong",item);
-  //       songRefetch();
-  //   }
 
   const {
     currentSong,
@@ -62,9 +51,8 @@ function SongsList({ data }) {
                   {getDuration(item.track)}
                 </td>
                 <td>
-                  <OptionMenu itemId={item._id}/>
+                  <OptionMenu itemId={item._id} />
                 </td>
-                {/* {console.log(item.track)} */}
               </tr>
             )
           })}

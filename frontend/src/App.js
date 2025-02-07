@@ -33,21 +33,6 @@ function App() {
 
   return (
     <div className='App'>
-	  {/* <QueryClientProvider client={queryClient}>
-        <PlayerProvider>
-          <Routes>
-            <Route path='/' element={<LogedInHome />} />
-            <Route path='/upload' element={<UploadSong />} />
-            <Route path='/mymusic' element={<Mymusic />} />
-            <Route path='/create-playlist' element={<CreatePlaylist />} />
-            <Route path='/playlist/:playlistId' element={<Playlist/>} />
-            <Route path='/login' element={<Login />} />
-            <Route path='/signup' element={<SignUp />} />
-            <Route path='*' element={<Navigate to="/" />} />
-          </Routes>
-        </PlayerProvider>
-        <ReactQueryDevtools initialIsOpen={false} />
-      </QueryClientProvider>*/}
       <QueryClientProvider client={queryClient}>
         <PlayerProvider>
           <Routes>

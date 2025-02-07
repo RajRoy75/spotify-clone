@@ -1,16 +1,19 @@
 import React, { useState,useEffect,useRef } from 'react';
 import { SlOptions } from "react-icons/sl";
+import { IoMdCloseCircle } from "react-icons/io";
 import useUserPlaylist from "../../hooks/useUserPlalylist.js" 
 import Playlist from "./Playlist.js";
 import {auth} from "../../utils/firebase.js";
 import {makeAuthenticatePOSTrequest,makeAuthenticateGETrequest} from "../../utils/serverHelper.js";
 import { useParams } from 'react-router-dom';
+import { useQueryClient } from 'react-query';
 
 const OptionMenu = ({ itemId }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [showPlaylistModal, setShowPlaylistModal] = useState(false);
   const [isOwner, setIsOwner] = useState(false);
   const dropdownRef = useRef(null);
+  const queryClient = useQueryClient();
 
   const currentUser = auth.currentUser;
   const uid = currentUser.uid;
@@ -19,7 +22,6 @@ const OptionMenu = ({ itemId }) => {
 
 
   const { data: userPlaylist, isLoading: playlistLoading, isError: playlistError, refetch: playlistRefetch} = useUserPlaylist();
-  //  console.log(userPlaylist.data);
   console.log(playlistId);
 
   const toggleMenu = () => {
@@ -28,7 +30,7 @@ const OptionMenu = ({ itemId }) => {
 
   const handleAddToPlaylistClick = () => {
     setShowPlaylistModal(true);
-    setIsOpen(false); // Close the dropdown menu
+    setIsOpen(false);
   };
 
   const closePlaylistModal = () => {
@@ -43,12 +45,12 @@ const OptionMenu = ({ itemId }) => {
         alert("unable to remove");
       }
       alert('Succesfully remove from playlist');
+      queryClient.invalidateQueries(['playlistSongs', playlistId]);
     } catch (error) {
       console.error('error: ',error);
     }
     setIsOpen(false);
   }
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -138,22 +140,9 @@ const OptionMenu = ({ itemId }) => {
               <h2 className="text-xl font-semibold text-black">Add to Playlist</h2>
               <button
                 onClick={closePlaylistModal}
-                className="p-2 rounded-full hover:bg-cyan-500 focus:outline-none bg-blue-500"
+                className="focus:outline-none "
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-6 w-6"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
+                <IoMdCloseCircle className="text-blue-400 hover:text-red-500" size={40}/>
               </button>
             </div>
             <div className="space-y-2">
@@ -171,7 +160,6 @@ const OptionMenu = ({ itemId }) => {
                         if(isSongInPlaylist){
                           alert("Song Already in Playlist");
                         }else{
-                          // alert('Ready for api');
                           addToPlaylist(item._id);
                         }
                         closePlaylistModal();
@@ -184,7 +172,6 @@ const OptionMenu = ({ itemId }) => {
               ) : (
                   <p>Create Playlist</p>
                 )} 
-
             </div>
             <button
               onClick={closePlaylistModal}
