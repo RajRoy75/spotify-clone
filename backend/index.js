@@ -4,6 +4,7 @@ const JwtStrategy = require('passport-jwt').Strategy,
     ExtractJwt = require('passport-jwt').ExtractJwt;
 const passport = require('passport');
 const User = require('./Models/User');
+const Song = require('./Models/Song');
 const authRouter = require('./routes/auth');
 const songRouter = require('./routes/song');
 const playlistRoute = require('./routes/playlist');
@@ -15,8 +16,10 @@ require('dotenv').config();
 app.use(express.json());
 const port = 8000;
 const mongoDb = `mongodb+srv://rajroy:${process.env.MONGO_PASSWORD}@cluster0.etidfhl.mongodb.net/?retryWrites=true&w=majority`
-mongoose.connect(mongoDb).then((x)=>{
-    console.log('mongoDB atlas successfully connected to express Js')
+mongoose.connect(mongoDb).then(async(x)=>{
+  console.log('mongoDB atlas successfully connected to express Js')
+  await Song.collection.createIndex({ name: 'text' }); // 🔹 Creates an index on 'name'
+  console.log('Index created successfully');
 }).catch((err)=>{
     console.error(err);
 });

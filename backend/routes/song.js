@@ -55,4 +55,16 @@ route.get('/get/song/:songname', passport.authenticate('jwt',{session: false}), 
     res.status(200).json({data: song});
 })
 
+route.get('/search',async(req,res)=>{
+  const {query} = req.query;
+  try {
+    const response = await Song.find(
+      {name: { $regex: query, $options: "i" }}  
+    ).populate('artist')
+    res.json(response);
+  } catch (error) {
+   res.status(500).json({message:`Error fetching result: `, error});
+  }
+})
+
 module.exports = route;

@@ -47,3 +47,15 @@ export const getUserPlaylist = async() => {
         throw error; // Propagate the error for React Query to handle
     }
 }
+
+
+export const fetchSearchResults = async ({ queryKey }) => {
+  const [_, query] = queryKey;
+  const response = await fetch(`http://localhost:8000/song/search?query=${query}`);
+  if (!response.ok) {
+    throw new Error('Network response was not ok');
+  }
+  const data = await response.json();
+  return data;
+};
+
